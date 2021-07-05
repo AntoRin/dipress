@@ -1,0 +1,32 @@
+{
+   "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "allowJs": false,
+      "sourceMap": true,
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "removeComments": true,
+      "strict": true,
+      "alwaysStrict": true,
+      "moduleResolution": "node",
+      "noImplicitAny": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "noImplicitThis": true,
+      "noFallthroughCasesInSwitch": true,
+      "noUnusedLocals": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "noUnusedParameters": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "baseUrl": ".",
+      "paths": {
+         "*": ["node_modules/*", "src/types/*"]
+      }
+   },
+   "exclude": ["node_modules", "client"]
+}
