@@ -1,5 +1,5 @@
 {
-   "name": "designer-routes",
+   "name": "express-decorator-routes",
    "version": "1.0.0",
    "description": "A TypeScript decorator library for working with express.js",
    "main": "src/index.js",

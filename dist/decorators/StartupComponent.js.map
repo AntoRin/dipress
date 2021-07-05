@@ -1,1 +1,0 @@
-{"version":3,"file":"StartupComponent.js","sourceRoot":"","sources":["../../src/decorators/StartupComponent.ts"],"names":[],"mappings":";;;AAAA,4BAA0B;AAE1B,SAAgB,gBAAgB,CAC7B,MAAW,EACX,GAAW,EACX,CAAqB;IAErB,OAAO,CAAC,cAAc,CAAC,kBAAkB,EAAE,IAAI,EAAE,MAAM,EAAE,GAAG,CAAC,CAAC;AACjE,CAAC;AAND,4CAMC"}
