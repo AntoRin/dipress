@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-export function startupComponent(
+export function StartupComponent(
    target: any,
    key: string,
    _: PropertyDescriptor

@@ -5,9 +5,12 @@ import { RouteData } from "../types";
 export function RestController(routePrefix: string) {
    return function (constructor: Function) {
       const target = constructor.prototype;
-      const router = Router();
+      const router: Router = Router();
 
-      const middlewareRouter = Reflect.getMetadata("middlewareRouter", target);
+      const middlewareRouter: Router = Reflect.getMetadata(
+         "middlewareRouter",
+         target
+      );
 
       if (middlewareRouter) router.use(middlewareRouter);
 

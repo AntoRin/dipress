@@ -9,8 +9,6 @@ export function GET(route: string) {
          method: "get",
       };
 
-      console.log(routeDetails);
-
       Reflect.defineMetadata("route", routeDetails, target, key);
    };
 }

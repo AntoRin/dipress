@@ -10,7 +10,7 @@ export function Application(constructor: Function) {
          target[genericMethodName]();
    }
 
-   const controllers = target.controllers();
+   const controllers: Array<any> = target.controllers();
 
    if (!controllers) return;
 

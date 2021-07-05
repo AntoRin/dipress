@@ -4,7 +4,7 @@ import { GET } from "./decorators/ControllerMethods";
 import { PostHandlers } from "./decorators/PostHandler";
 import { PreHandlers } from "./decorators/PreHandlers";
 import { RestController } from "./decorators/RestController";
-import { startupComponent } from "./decorators/StartupComponent";
+import { StartupComponent } from "./decorators/StartupComponent";
 import { UseMiddlewares } from "./decorators/UseMiddlewares";
 
 function middleware(_: Request, __: Response, next: NextFunction) {
@@ -44,7 +44,7 @@ export class TestDecorators {
       return next();
    }
 
-   @startupComponent
+   @StartupComponent
    method3() {
       console.log("DB connection, perhaps...");
    }

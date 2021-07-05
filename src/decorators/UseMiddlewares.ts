@@ -3,9 +3,12 @@ import { Router } from "express";
 export function UseMiddlewares(middlewares: Array<any>) {
    return function (constructor: Function) {
       const target = constructor.prototype;
-      const router = Router();
+      const router: Router = Router();
 
-      const prevRouter = Reflect.getMetadata("controllerRouter", target);
+      const prevRouter: Router = Reflect.getMetadata(
+         "controllerRouter",
+         target
+      );
 
       if (prevRouter) {
          router.use([...middlewares, prevRouter]);
