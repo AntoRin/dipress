@@ -20,6 +20,7 @@
       "strictFunctionTypes": true,
       "noUnusedParameters": true,
       "esModuleInterop": true,
+      "declaration": true,
       "resolveJsonModule": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
@@ -28,5 +29,5 @@
          "*": ["node_modules/*", "src/types/*"]
       }
    },
-   "exclude": ["node_modules", "client"]
+   "exclude": ["node_modules", "dist"]
 }
