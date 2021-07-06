@@ -5,3 +5,4 @@ export * from "./PreRouteHandlers";
 export * from "./RestController";
 export * from "./StartupComponent";
 export * from "./UseMiddlewares";
+export * from "./Factory";

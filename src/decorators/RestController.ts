@@ -28,7 +28,7 @@ export function RestController(routePrefix: string) {
 
             if (!metaData) continue;
 
-            let endPointHandler: any | Array<any> = metaData.isFactory
+            let endPointHandler: any = metaData.isFactory
                ? target[propName]()
                : target[propName];
 

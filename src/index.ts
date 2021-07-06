@@ -19,4 +19,5 @@ export {
    RequestHandler,
    RequestParamHandler,
    Send,
+   Application,
 } from "express";

@@ -52,8 +52,11 @@ export class TestDecorators {
    }
 
    @StartupComponent
-   method3() {
+   async method3() {
       console.log("DB connection, perhaps...");
+      await new Promise((resolve, _) =>
+         setTimeout(() => resolve("yes..."), 5000)
+      );
    }
 
    @PreRouteHandlers([preHandler])
