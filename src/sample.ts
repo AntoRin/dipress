@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { Application } from "./decorators/Application";
+import { Server } from "./decorators/Server";
 import { GET } from "./decorators/ControllerMethods";
-import { PostHandlers } from "./decorators/PostHandler";
-import { PreHandlers } from "./decorators/PreHandlers";
+import { PostRouteHandlers } from "./decorators/PostRouteHandlers";
+import { PreRouteHandlers } from "./decorators/PreRouteHandlers";
 import { RestController } from "./decorators/RestController";
 import { StartupComponent } from "./decorators/StartupComponent";
 import { UseMiddlewares } from "./decorators/UseMiddlewares";
+import { Factory } from "./decorators/Factory";
 
 function middleware(_: Request, __: Response, next: NextFunction) {
    console.log("middleware hit");
@@ -22,7 +23,13 @@ function postHandler(_: Request, __: Response, next: NextFunction) {
    return next();
 }
 
-@Application
+function factory(_: Request, res: Response, __: NextFunction) {
+   console.log("hit");
+
+   res.send("Factory route");
+}
+
+@Server()
 @UseMiddlewares([middleware])
 @RestController("/api")
 export class TestDecorators {
@@ -30,15 +37,15 @@ export class TestDecorators {
       return [TestDecorators];
    }
 
-   @PreHandlers([preHandler])
+   @PreRouteHandlers([preHandler])
    @GET("/home")
    method1(_: Request, res: Response) {
       res.send("home page");
    }
 
    @GET("/about")
-   @PreHandlers([preHandler])
-   @PostHandlers([postHandler])
+   @PreRouteHandlers([preHandler])
+   @PostRouteHandlers([postHandler])
    method2(_: Request, res: Response, next: NextFunction) {
       res.send("about page");
       return next();
@@ -47,5 +54,12 @@ export class TestDecorators {
    @StartupComponent
    method3() {
       console.log("DB connection, perhaps...");
+   }
+
+   @PreRouteHandlers([preHandler])
+   @GET("/factory")
+   @Factory
+   method4() {
+      return [factory];
    }
 }

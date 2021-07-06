@@ -1,6 +1,7 @@
 export interface RouteData {
    endPoint: string;
    method: string;
-   preHandlers?: Array<Function>;
-   postHandlers?: Array<Function>;
+   preRouteHandlers?: Array<Function>;
+   postRouteHandlers?: Array<Function>;
+   isFactory?: boolean;
 }

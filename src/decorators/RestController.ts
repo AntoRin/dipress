@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Router } from "express";
+import { Handler, Router } from "express";
 import { RouteData } from "../types";
 
 export function RestController(routePrefix: string) {
@@ -28,18 +28,26 @@ export function RestController(routePrefix: string) {
 
             if (!metaData) continue;
 
-            const handler =
-               metaData.preHandlers && metaData.postHandlers
+            let endPointHandler: any | Array<any> = metaData.isFactory
+               ? target[propName]()
+               : target[propName];
+
+            endPointHandler = Array.isArray(endPointHandler)
+               ? endPointHandler
+               : [endPointHandler];
+
+            const handler: Handler =
+               metaData.preRouteHandlers && metaData.postRouteHandlers
                   ? [
-                       ...metaData.preHandlers,
-                       target[propName],
-                       ...metaData.postHandlers,
+                       ...metaData.preRouteHandlers,
+                       ...endPointHandler,
+                       ...metaData.postRouteHandlers,
                     ]
-                  : metaData.preHandlers
-                  ? [...metaData.preHandlers, target[propName]]
-                  : metaData.postHandlers
-                  ? [target[propName], ...metaData.postHandlers]
-                  : target[propName];
+                  : metaData.preRouteHandlers
+                  ? [...metaData.preRouteHandlers, ...endPointHandler]
+                  : metaData.postRouteHandlers
+                  ? [...endPointHandler, ...metaData.postRouteHandlers]
+                  : endPointHandler;
 
             switch (metaData.method) {
                case "get":

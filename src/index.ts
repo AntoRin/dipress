@@ -18,6 +18,5 @@ export {
    MediaType,
    RequestHandler,
    RequestParamHandler,
-   Application,
    Send,
 } from "express";
