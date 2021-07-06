@@ -1,8 +1,9 @@
 import "reflect-metadata";
 import express, { Application } from "express";
 import { PromiseHandler } from "../utils/PromiseHandler";
+import { pathMap } from "../utils/printRoutes";
 
-export function Server(appHandler?: Application) {
+export function ApplicationServer(appHandler?: Application) {
    return function (constructor: Function) {
       const target = constructor.prototype;
       const app = appHandler ? appHandler : express();
@@ -10,6 +11,7 @@ export function Server(appHandler?: Application) {
       const promiseHandler: PromiseHandler = new PromiseHandler();
 
       promiseHandler.once("success", () => {
+         pathMap.displayPathMap(app);
          console.log("success");
          app.listen(5000, () => console.log("Server listening on port 5000"));
       });

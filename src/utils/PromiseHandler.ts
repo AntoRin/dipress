@@ -18,8 +18,7 @@ export class PromiseHandler extends EventEmitter {
    public async executePromises() {
       try {
          await Promise.all(this._promises);
-         this._promises = [];
-         console.log("emitting success");
+         this._promises.length = 0;
          this.emit("success");
       } catch (error) {
          console.log(error);

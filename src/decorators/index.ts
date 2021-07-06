@@ -1,4 +1,4 @@
-export * from "./Server";
+export * from "./ApplicationServer";
 export * from "./ControllerMethods";
 export * from "./PostRouteHandlers";
 export * from "./PreRouteHandlers";

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { Server } from "./decorators/Server";
-import { GET } from "./decorators/ControllerMethods";
+import { ApplicationServer } from "./decorators/ApplicationServer";
+import { GET, POST } from "./decorators/ControllerMethods";
 import { PostRouteHandlers } from "./decorators/PostRouteHandlers";
 import { PreRouteHandlers } from "./decorators/PreRouteHandlers";
 import { RestController } from "./decorators/RestController";
@@ -29,7 +29,7 @@ function factory(_: Request, res: Response, __: NextFunction) {
    res.send("Factory route");
 }
 
-@Server()
+@ApplicationServer()
 @UseMiddlewares([middleware])
 @RestController("/api")
 export class TestDecorators {
@@ -55,7 +55,7 @@ export class TestDecorators {
    async method3() {
       console.log("DB connection, perhaps...");
       await new Promise((resolve, _) =>
-         setTimeout(() => resolve("yes..."), 5000)
+         setTimeout(() => resolve("yes..."), 1000)
       );
    }
 
@@ -64,5 +64,12 @@ export class TestDecorators {
    @Factory
    method4() {
       return [factory];
+   }
+
+   @PostRouteHandlers([postHandler])
+   @POST("/check")
+   method5(_: Request, res: Response) {
+      console.log("post method");
+      res.json({ status: "ok" });
    }
 }
