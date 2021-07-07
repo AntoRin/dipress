@@ -2,6 +2,7 @@ import "reflect-metadata";
 import express, { Application } from "express";
 import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
+import { isFunction } from "../utils/functionCheck";
 
 export function ApplicationServer(appHandler?: Application) {
    return function (constructor: Function) {
@@ -37,18 +38,26 @@ export function ApplicationServer(appHandler?: Application) {
             promiseHandler.executePromises();
       }
 
-      const controllers: Array<any> = target.controllers();
+      const controllers: Array<any> = target?.controllers();
 
-      if (!controllers) return;
+      const catchAll = target.catchAll
+         ? Reflect.getMetadata("isFactory", target, "catchAll")
+            ? target.catchAll()
+            : target.catchAll
+         : null;
 
-      for (const controller of controllers) {
-         const router = Reflect.getMetadata(
-            "controllerRouter",
-            controller.prototype
-         );
-         if (!router) continue;
-         app.use(router);
+      if (controllers) {
+         for (const controller of controllers) {
+            const router = Reflect.getMetadata(
+               "controllerRouter",
+               controller.prototype
+            );
+            if (!router) continue;
+            app.use(router);
+         }
       }
+
+      catchAll && isFunction(catchAll) && app.use(catchAll);
 
       promiseHandler.promises.length === 0 && promiseHandler.emit("success");
    };

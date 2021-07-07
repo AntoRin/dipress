@@ -18,9 +18,8 @@ function preHandler(_: Request, __: Response, next: NextFunction) {
    return next();
 }
 
-function postHandler(_: Request, __: Response, next: NextFunction) {
+function postHandler(_: Request, __: Response) {
    console.log("postHandler hit!!!");
-   return next();
 }
 
 function factory(_: Request, res: Response, __: NextFunction) {
@@ -71,5 +70,9 @@ export class TestDecorators {
    method5(_: Request, res: Response) {
       console.log("post method");
       res.json({ status: "ok" });
+   }
+
+   catchAll(_: Request, res: Response) {
+      res.send("Not found");
    }
 }

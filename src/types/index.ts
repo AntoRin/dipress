@@ -3,5 +3,4 @@ export interface RouteData {
    method: string;
    preRouteHandlers?: Array<Function>;
    postRouteHandlers?: Array<Function>;
-   isFactory?: boolean;
 }
