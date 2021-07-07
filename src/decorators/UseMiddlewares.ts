@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Router } from "express";
 
 export function UseMiddlewares(middlewares: Array<any>) {
@@ -10,13 +11,21 @@ export function UseMiddlewares(middlewares: Array<any>) {
          target
       );
 
-      if (prevRouter) {
-         router.use([...middlewares, prevRouter]);
+      console.log(prevRouter);
 
+      if (prevRouter) {
+         router.use(
+            Reflect.getMetadata("controllerBasePath", target),
+            middlewares
+         );
+         router.use(prevRouter);
          Reflect.defineMetadata("controllerRouter", router, target);
       } else {
-         router.use(middlewares);
-         Reflect.defineMetadata("middlewareRouter", router, target);
+         Reflect.defineMetadata(
+            "controllerBaseMiddlewares",
+            middlewares,
+            target
+         );
       }
    };
 }

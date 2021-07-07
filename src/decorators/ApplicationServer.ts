@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import express, { Application } from "express";
+import express, { Application, Router } from "express";
 import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
 import { isFunction } from "../utils/functionCheck";
@@ -34,7 +34,10 @@ export function ApplicationServer(appHandler?: Application) {
                promiseHandler.addNewPromise(componentResult);
          }
 
-         if (idx >= Object.getOwnPropertyNames(target).length - 1)
+         if (
+            idx >= Object.getOwnPropertyNames(target).length - 1 &&
+            promiseHandler.promises.length > 0
+         )
             promiseHandler.executePromises();
       }
 
@@ -48,11 +51,12 @@ export function ApplicationServer(appHandler?: Application) {
 
       if (controllers) {
          for (const controller of controllers) {
-            const router = Reflect.getMetadata(
+            const router: Router = Reflect.getMetadata(
                "controllerRouter",
                controller.prototype
             );
             if (!router) continue;
+
             app.use(router);
          }
       }

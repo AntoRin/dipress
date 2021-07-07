@@ -8,8 +8,8 @@ import { StartupComponent } from "./decorators/StartupComponent";
 import { UseMiddlewares } from "./decorators/UseMiddlewares";
 import { Factory } from "./decorators/Factory";
 
-function middleware(_: Request, __: Response, next: NextFunction) {
-   console.log("middleware hit");
+function midMan(_: Request, __: Response, next: NextFunction) {
+   console.log("this is the man in the middle");
    return next();
 }
 
@@ -29,8 +29,8 @@ function factory(_: Request, res: Response, __: NextFunction) {
 }
 
 @ApplicationServer()
-@UseMiddlewares([middleware])
 @RestController("/api")
+@UseMiddlewares([midMan])
 export class TestDecorators {
    controllers(): any {
       return [TestDecorators];
@@ -39,7 +39,7 @@ export class TestDecorators {
    @PreRouteHandlers([preHandler])
    @GET("/home")
    method1(_: Request, res: Response) {
-      res.send("home page");
+      return res.send("home page");
    }
 
    @GET("/about")
@@ -54,7 +54,7 @@ export class TestDecorators {
    async method3() {
       console.log("DB connection, perhaps...");
       await new Promise((resolve, _) =>
-         setTimeout(() => resolve("yes..."), 1000)
+         setTimeout(() => resolve("yes..."), 500)
       );
    }
 

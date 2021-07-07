@@ -7,12 +7,13 @@ export function RestController(routePrefix: string) {
       const target = constructor.prototype;
       const router: Router = Router();
 
-      const middlewareRouter: Router = Reflect.getMetadata(
-         "middlewareRouter",
+      const controllerBaseMiddlewares = Reflect.getMetadata(
+         "controllerBaseMiddlewares",
          target
       );
 
-      if (middlewareRouter) router.use(middlewareRouter);
+      if (controllerBaseMiddlewares)
+         router.use(routePrefix, controllerBaseMiddlewares);
 
       for (const propName of Object.getOwnPropertyNames(target)) {
          if (
@@ -71,5 +72,6 @@ export function RestController(routePrefix: string) {
       }
 
       Reflect.defineMetadata("controllerRouter", router, target);
+      Reflect.defineMetadata("controllerBasePath", routePrefix, target);
    };
 }
