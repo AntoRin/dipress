@@ -1,7 +1,7 @@
 {
-   "name": "express-decorator-routes",
-   "version": "1.0.6",
-   "description": "A TypeScript decorator library for working with express.js",
+   "name": "express-frills",
+   "version": "1.0.0",
+   "description": "A TypeScript decorator library built on top of express.js",
    "main": "dist/index.js",
    "types": "dist/index.d.ts",
    "scripts": {
@@ -10,6 +10,9 @@
    },
    "author": "AntoRin",
    "license": "MIT",
+   "repository": {
+      "url": "https://github.com/AntoRin/express-frills"
+   },
    "dependencies": {
       "@types/express": "^4.17.12",
       "express": "^4.17.1",
