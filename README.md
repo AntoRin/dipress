@@ -27,19 +27,25 @@ Use the @ApplicationServer decorator for your main server class, and get your ex
 @ApplicationServer(app?: Express.Application)
 ```
 
-**Initialize express server. You can pass in your app with all the basic middlewares like cors, body-parser, etc., or have a basic app created for you.**
+### Initialize express server. You can either pass in your app with all the basic middlewares like cors, body-parser, etc., or have a basic app created for you.
+
+---
 
 ```ts
 @RestController(routePrefix?: string)
 ```
 
-**Initialize your controller, either with or without a route prefix.**
+### Initialize your controller, either with or without a route prefix.
+
+---
 
 ```ts
 @UseMiddlewares(middlewares: Array<Function>)
 ```
 
-**Initialize middlewares like "requireAuth" for your controller.**
+### Initialize middlewares like "requireAuth" for your controller.
+
+---
 
 ```ts
 @GET(path: string)
@@ -48,20 +54,26 @@ Use the @ApplicationServer decorator for your main server class, and get your ex
 @DELETE(path: string)
 ```
 
-**Rest methods for your endpoint controller methods.**
+### Rest methods for your endpoint controller methods.
+
+---
 
 ```ts
 @PreRouteHandlers(handlers: Array<Function>)
 @PostRouteHandlers(handlers: Array<Function>)
 ```
 
-**Handlers for before and after the request hits your endpoint.**
+### Handlers for before and after the request hits your endpoint.
+
+---
 
 ```ts
 @Factory
 ```
 
-**Return an array of handlers within your endpoint method.**
+### Return an array of handlers within your endpoint method.
+
+---
 
 ## Author
 
