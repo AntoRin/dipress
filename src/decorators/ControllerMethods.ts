@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { RouteData } from "../types";
 
 export function GET(route: string) {
-   return function (target: any, key: string, _: PropertyDescriptor) {
+   return function (target: Object, key: string, _: PropertyDescriptor) {
       const routeDetails: RouteData = {
          ...Reflect.getMetadata("route", target, key),
          endPoint: route,
@@ -14,7 +14,7 @@ export function GET(route: string) {
 }
 
 export function POST(route: string) {
-   return function (target: any, key: string, _: PropertyDescriptor) {
+   return function (target: Object, key: string, _: PropertyDescriptor) {
       const routeDetails: RouteData = {
          ...Reflect.getMetadata("route", target, key),
          endPoint: route,
@@ -26,7 +26,7 @@ export function POST(route: string) {
 }
 
 export function PUT(route: string) {
-   return function (target: any, key: string, _: PropertyDescriptor) {
+   return function (target: Object, key: string, _: PropertyDescriptor) {
       const routeDetails: RouteData = {
          ...Reflect.getMetadata("route", target, key),
          endPoint: route,
@@ -38,7 +38,7 @@ export function PUT(route: string) {
 }
 
 export function DELETE(route: string) {
-   return function (target: any, key: string, _: PropertyDescriptor) {
+   return function (target: Object, key: string, _: PropertyDescriptor) {
       const routeDetails: RouteData = {
          ...Reflect.getMetadata("route", target, key),
          endPoint: route,

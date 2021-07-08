@@ -1,9 +1,15 @@
 import "reflect-metadata";
-import { Router } from "express";
+import { RequestHandler, Router } from "express";
+import { isFunction } from "../utils/functionCheck";
 
-export function UseMiddlewares(middlewares: Array<any>) {
+export function UseMiddlewares(
+   middlewares: RequestHandler | Array<RequestHandler>
+) {
    return function (constructor: Function) {
-      const target = constructor.prototype;
+      if (!isFunction(middlewares))
+         throw new Error("Only functions are to be passed in for handlers");
+
+      const target: any = constructor.prototype;
 
       const prevRouter: Router = Reflect.getMetadata(
          "controllerRouter",
@@ -18,7 +24,7 @@ export function UseMiddlewares(middlewares: Array<any>) {
       } else {
          Reflect.defineMetadata(
             "controllerBaseMiddlewares",
-            middlewares,
+            ([] as Array<RequestHandler>).concat(middlewares),
             target
          );
       }

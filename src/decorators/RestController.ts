@@ -1,16 +1,14 @@
 import "reflect-metadata";
-import { Handler, Router } from "express";
+import { RequestHandler, Router } from "express";
 import { RouteData } from "../types";
 
 export function RestController(routePrefix: string = "") {
    return function (constructor: Function) {
-      const target = constructor.prototype;
+      const target: any = constructor.prototype;
       const router: Router = Router();
 
-      const controllerBaseMiddlewares = Reflect.getMetadata(
-         "controllerBaseMiddlewares",
-         target
-      );
+      const controllerBaseMiddlewares: Array<RequestHandler> =
+         Reflect.getMetadata("controllerBaseMiddlewares", target);
 
       if (controllerBaseMiddlewares) router.use(controllerBaseMiddlewares);
 
@@ -28,19 +26,15 @@ export function RestController(routePrefix: string = "") {
 
             if (!metaData) continue;
 
-            let endPointHandler: any = Reflect.getMetadata(
-               "isFactory",
-               target,
-               propName
-            )
-               ? target[propName]()
-               : target[propName];
+            const endPointHandler: Array<RequestHandler> = (
+               [] as Array<RequestHandler>
+            ).concat(
+               Reflect.getMetadata("isFactory", target, propName)
+                  ? target[propName]()
+                  : target[propName]
+            );
 
-            endPointHandler = Array.isArray(endPointHandler)
-               ? endPointHandler
-               : [endPointHandler];
-
-            const handler: Handler =
+            const handler: RequestHandler | Array<RequestHandler> =
                metaData.preRouteHandlers && metaData.postRouteHandlers
                   ? [
                        ...metaData.preRouteHandlers,

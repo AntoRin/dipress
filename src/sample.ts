@@ -13,8 +13,8 @@ function midMan(_: Request, __: Response, next: NextFunction) {
    return next();
 }
 
-function secondMidMan(_: Request, res: Response, next: NextFunction) {
-   console.log(res.statusCode);
+function secondMidMan(_: Request, __: Response, next: NextFunction) {
+   console.log("second mid man");
    return next();
 }
 
@@ -42,23 +42,23 @@ class MoreEndpoints {
    }
 }
 
-@ApplicationServer(null, null, true)
-@UseMiddlewares([midMan])
+@ApplicationServer(null, 5000, true)
+@UseMiddlewares(midMan)
 @RestController("/api")
 export class TestDecorators {
    controllers(): any {
       return [MoreEndpoints, TestDecorators];
    }
 
-   @PreRouteHandlers([preHandler])
+   @PreRouteHandlers(preHandler)
    @GET("/home")
    method1(_: Request, res: Response) {
       return res.send("home page");
    }
 
    @GET("/about")
-   @PreRouteHandlers([preHandler])
-   @PostRouteHandlers([postHandler])
+   @PreRouteHandlers(preHandler)
+   @PostRouteHandlers(postHandler)
    method2(_: Request, res: Response, next: NextFunction) {
       res.send("about page");
       return next();
