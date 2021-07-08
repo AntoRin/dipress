@@ -1,6 +1,6 @@
 {
    "name": "express-frills",
-   "version": "1.0.2",
+   "version": "1.0.3",
    "description": "A TypeScript decorator library built on top of express.js",
    "main": "dist/index.js",
    "types": "dist/index.d.ts",
