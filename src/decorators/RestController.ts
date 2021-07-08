@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { Handler, Router } from "express";
 import { RouteData } from "../types";
 
-export function RestController(routePrefix: string) {
+export function RestController(routePrefix: string = "") {
    return function (constructor: Function) {
       const target = constructor.prototype;
       const router: Router = Router();
@@ -12,8 +12,7 @@ export function RestController(routePrefix: string) {
          target
       );
 
-      if (controllerBaseMiddlewares)
-         router.use(routePrefix, controllerBaseMiddlewares);
+      if (controllerBaseMiddlewares) router.use(controllerBaseMiddlewares);
 
       for (const propName of Object.getOwnPropertyNames(target)) {
          if (
@@ -56,16 +55,16 @@ export function RestController(routePrefix: string) {
 
             switch (metaData.method) {
                case "get":
-                  router.get(`${routePrefix}${metaData.endPoint}`, handler);
+                  router.get(metaData.endPoint, handler);
                   break;
                case "post":
-                  router.post(`${routePrefix}${metaData.endPoint}`, handler);
+                  router.post(metaData.endPoint, handler);
                   break;
                case "put":
-                  router.put(`${routePrefix}${metaData.endPoint}`, handler);
+                  router.put(metaData.endPoint, handler);
                   break;
                case "delete":
-                  router.delete(`${routePrefix}${metaData.endPoint}`, handler);
+                  router.delete(metaData.endPoint, handler);
                   break;
             }
          }

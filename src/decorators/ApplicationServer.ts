@@ -4,7 +4,11 @@ import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
 import { isFunction } from "../utils/functionCheck";
 
-export function ApplicationServer(appHandler?: Application) {
+export function ApplicationServer(
+   appHandler?: Application | null,
+   port: number | null = 5000,
+   verbose: boolean = false
+) {
    return function (constructor: Function) {
       const target = constructor.prototype;
       const app = appHandler ? appHandler : express();
@@ -12,9 +16,8 @@ export function ApplicationServer(appHandler?: Application) {
       const promiseHandler: PromiseHandler = new PromiseHandler();
 
       promiseHandler.once("success", () => {
-         pathMap.displayPathMap(app);
-         console.log("success");
-         app.listen(5000, () => console.log("Server listening on port 5000"));
+         verbose && pathMap.displayPathMap(app);
+         app.listen(port, () => console.log("Server listening on port 5000"));
       });
 
       promiseHandler.once("failure", error => {
@@ -22,9 +25,7 @@ export function ApplicationServer(appHandler?: Application) {
          process.exit(1);
       });
 
-      for (const [idx, genericMethodName] of Object.getOwnPropertyNames(
-         target
-      ).entries()) {
+      for (const genericMethodName of Object.getOwnPropertyNames(target)) {
          if (
             Reflect.getMetadata("startupComponent", target, genericMethodName)
          ) {
@@ -33,12 +34,6 @@ export function ApplicationServer(appHandler?: Application) {
             if (componentResult instanceof Promise)
                promiseHandler.addNewPromise(componentResult);
          }
-
-         if (
-            idx >= Object.getOwnPropertyNames(target).length - 1 &&
-            promiseHandler.promises.length > 0
-         )
-            promiseHandler.executePromises();
       }
 
       const controllers: Array<any> = target?.controllers();
@@ -57,12 +52,17 @@ export function ApplicationServer(appHandler?: Application) {
             );
             if (!router) continue;
 
-            app.use(router);
+            app.use(
+               Reflect.getMetadata("controllerBasePath", controller.prototype),
+               router
+            );
          }
       }
 
       catchAll && isFunction(catchAll) && app.use(catchAll);
 
-      promiseHandler.promises.length === 0 && promiseHandler.emit("success");
+      promiseHandler.promises.length > 0
+         ? promiseHandler.executePromises()
+         : promiseHandler.emit("success");
    };
 }

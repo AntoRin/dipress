@@ -13,6 +13,11 @@ function midMan(_: Request, __: Response, next: NextFunction) {
    return next();
 }
 
+function secondMidMan(_: Request, res: Response, next: NextFunction) {
+   console.log(res.statusCode);
+   return next();
+}
+
 function preHandler(_: Request, __: Response, next: NextFunction) {
    console.log("preHandler hit!!!");
    return next();
@@ -28,12 +33,21 @@ function factory(_: Request, res: Response, __: NextFunction) {
    res.send("Factory route");
 }
 
-@ApplicationServer()
-@RestController("/api")
+@UseMiddlewares([secondMidMan])
+@RestController("")
+class MoreEndpoints {
+   @GET("/v2")
+   index(_: Request, res: Response) {
+      res.send("Index path");
+   }
+}
+
+@ApplicationServer(null, null, true)
 @UseMiddlewares([midMan])
+@RestController("/api")
 export class TestDecorators {
    controllers(): any {
-      return [TestDecorators];
+      return [MoreEndpoints, TestDecorators];
    }
 
    @PreRouteHandlers([preHandler])
