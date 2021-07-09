@@ -12,7 +12,7 @@ export function UseMiddlewares(
       const target: any = constructor.prototype;
 
       const prevRouter: Router = Reflect.getMetadata(
-         "controllerRouter",
+         "controller-router",
          target
       );
 
@@ -20,10 +20,10 @@ export function UseMiddlewares(
          const router: Router = Router();
          router.use(middlewares);
          router.use(prevRouter);
-         Reflect.defineMetadata("controllerRouter", router, target);
+         Reflect.defineMetadata("controller-router", router, target);
       } else {
          Reflect.defineMetadata(
-            "controllerBaseMiddlewares",
+            "controller-middleware",
             ([] as Array<RequestHandler>).concat(middlewares),
             target
          );

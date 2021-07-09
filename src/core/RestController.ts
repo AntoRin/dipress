@@ -8,7 +8,7 @@ export function RestController(routePrefix: string = "") {
       const router: Router = Router();
 
       const controllerBaseMiddlewares: Array<RequestHandler> =
-         Reflect.getMetadata("controllerBaseMiddlewares", target);
+         Reflect.getMetadata("controller-middleware", target);
 
       if (controllerBaseMiddlewares) router.use(controllerBaseMiddlewares);
 
@@ -64,7 +64,7 @@ export function RestController(routePrefix: string = "") {
          }
       }
 
-      Reflect.defineMetadata("controllerRouter", router, target);
-      Reflect.defineMetadata("controllerBasePath", routePrefix, target);
+      Reflect.defineMetadata("controller-router", router, target);
+      Reflect.defineMetadata("controller-base-path", routePrefix, target);
    };
 }

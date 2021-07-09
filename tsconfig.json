@@ -4,7 +4,7 @@
       "module": "commonjs",
       "allowJs": false,
       "sourceMap": true,
-      "outDir": "./dist",
+      "outDir": "./lib",
       "rootDir": "./src",
       "removeComments": true,
       "strict": true,
@@ -29,5 +29,5 @@
          "*": ["node_modules/*", "src/types/*"]
       }
    },
-   "exclude": ["node_modules", "dist"]
+   "exclude": ["node_modules", "lib"]
 }

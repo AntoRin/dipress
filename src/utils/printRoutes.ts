@@ -16,7 +16,7 @@ export class PathMap {
    }
 
    public displayPathMap(app: Application) {
-      app._router.stack.forEach(this.printRouteMap.bind(null, []));
+      app._router?.stack.forEach(this.printRouteMap.bind(null, []));
       console.table(this._pathList);
       this._pathList.length = 0;
    }

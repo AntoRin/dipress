@@ -1,11 +1,11 @@
 {
    "name": "express-frills",
-   "version": "1.0.5",
+   "version": "1.0.6",
    "description": "A TypeScript decorator library built on top of express.js",
-   "main": "dist/index.js",
-   "types": "dist/index.d.ts",
+   "main": "lib/index.js",
+   "types": "lib/index.d.ts",
    "scripts": {
-      "build": "rm -rf dist && tsc",
+      "build": "rm -rf lib && tsc",
       "prepublishOnly": "npm run build"
    },
    "author": "AntoRin",

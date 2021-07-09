@@ -1,12 +1,15 @@
 import { NextFunction, Request, Response } from "express";
-import { ApplicationServer } from "./decorators/ApplicationServer";
-import { GET, POST } from "./decorators/ControllerMethods";
-import { PostRouteHandlers } from "./decorators/PostRouteHandlers";
-import { PreRouteHandlers } from "./decorators/PreRouteHandlers";
-import { RestController } from "./decorators/RestController";
-import { StartupComponent } from "./decorators/StartupComponent";
-import { UseMiddlewares } from "./decorators/UseMiddlewares";
-import { Factory } from "./decorators/Factory";
+import { ApplicationServer } from "./core/ApplicationServer";
+import { GET, POST } from "./core/ControllerMethods";
+import { PostRouteHandlers } from "./core/PostRouteHandlers";
+import { PreRouteHandlers } from "./core/PreRouteHandlers";
+import { RestController } from "./core/RestController";
+import { OnServerStartup } from "./core/OnServerStartup";
+import { UseMiddlewares } from "./core/UseMiddlewares";
+import { Factory } from "./core/Factory";
+import { Imports } from "./core/Imports";
+import { OnResponseEnd } from "./core/OnResponseEnd";
+import { ErrorHandler } from "./core/ErrorHandler";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -34,7 +37,7 @@ function factory(_: Request, res: Response, __: NextFunction) {
 }
 
 @UseMiddlewares([secondMidMan])
-@RestController("")
+@RestController("/")
 class MoreEndpoints {
    @GET("/v2")
    index(_: Request, res: Response) {
@@ -46,14 +49,16 @@ class MoreEndpoints {
 @UseMiddlewares(midMan)
 @RestController("/api")
 export class TestDecorators {
+   @Imports
    controllers(): any {
       return [MoreEndpoints, TestDecorators];
    }
 
    @PreRouteHandlers(preHandler)
    @GET("/home")
-   method1(_: Request, res: Response) {
-      return res.send("home page");
+   method1(_: Request, __: Response) {
+      throw new Error("Error handler where you at");
+      // return res.send("home page");
    }
 
    @GET("/about")
@@ -64,7 +69,7 @@ export class TestDecorators {
       return next();
    }
 
-   @StartupComponent
+   @OnServerStartup
    async method3() {
       console.log("DB connection, perhaps...");
       await new Promise((resolve, _) =>
@@ -72,7 +77,7 @@ export class TestDecorators {
       );
    }
 
-   @PreRouteHandlers([preHandler])
+   @PreRouteHandlers(preHandler)
    @GET("/factory")
    @Factory
    method4() {
@@ -86,6 +91,12 @@ export class TestDecorators {
       res.json({ status: "ok" });
    }
 
+   @ErrorHandler
+   errorHandler(error: any, _: Request, res: Response, __: NextFunction) {
+      res.json({ status: "error", error: error.message });
+   }
+
+   @OnResponseEnd
    catchAll(_: Request, res: Response) {
       res.send("Not found");
    }
