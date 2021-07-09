@@ -18,23 +18,11 @@ export function ApplicationServer(
 
       const promiseHandler: PromiseHandler = new PromiseHandler();
 
-      promiseHandler.once("success", () => {
-         verbose && pathMap.displayPathMap(app);
-         app.listen(port, () =>
-            console.log(`Server listening on port ${port}`)
-         );
-      });
-
-      promiseHandler.once("failure", error => {
-         console.log("Server failed to start with the error", error);
-         process.exit(1);
-      });
-
       for (const propName of Object.getOwnPropertyNames(target)) {
          if (typeof target[propName] !== "function") continue;
 
          if (Reflect.getMetadata("startup-component", target, propName)) {
-            const componentResult: any = target[propName]();
+            const componentResult: any = target[propName](app);
 
             if (componentResult instanceof Promise)
                promiseHandler.addNewPromise(componentResult);
@@ -87,35 +75,66 @@ export function ApplicationServer(
                ...appConfig,
                catchAll,
             };
+         } else if (
+            Reflect.getMetadata("after-startup-component", target, propName) &&
+            !appConfig.afterStartupComponent
+         ) {
+            appConfig = {
+               ...appConfig,
+               afterStartupComponent: target[propName],
+            };
          }
       }
 
-      const appControllers: Array<Function> | undefined = appConfig.controllers;
+      promiseHandler.once("success", () => {
+         const appControllers: Array<Function> | undefined =
+            appConfig.controllers;
 
-      if (!appControllers) throw new Error("No controllers to initialize");
+         if (!appControllers) throw new Error("No controllers to initialize");
 
-      for (const controller of appControllers) {
-         const router: Router = Reflect.getMetadata(
-            "controller-router",
-            controller.prototype
-         );
-         if (!router) continue;
+         for (const controller of appControllers) {
+            const router: Router = Reflect.getMetadata(
+               "controller-router",
+               controller.prototype
+            );
+            if (!router) continue;
 
-         app.use(
-            Reflect.getMetadata("controller-base-path", controller.prototype),
-            router
-         );
-      }
+            app.use(
+               Reflect.getMetadata(
+                  "controller-base-path",
+                  controller.prototype
+               ),
+               router
+            );
+         }
 
-      const catchAll: RequestHandler | Array<RequestHandler> | undefined =
-         appConfig.catchAll;
+         const catchAll: RequestHandler | Array<RequestHandler> | undefined =
+            appConfig.catchAll;
 
-      catchAll && app.use(catchAll);
+         catchAll && app.use(catchAll);
 
-      const errorHandler: RequestHandler | Array<RequestHandler> | undefined =
-         appConfig.errorHandler;
+         const errorHandler:
+            | RequestHandler
+            | Array<RequestHandler>
+            | undefined = appConfig.errorHandler;
 
-      errorHandler && app.use(errorHandler);
+         errorHandler && app.use(errorHandler);
+
+         verbose && pathMap.displayPathMap(app);
+
+         const server = app.listen(port, async () => {
+            console.log(`Server listening on port ${port}`);
+            if (appConfig.afterStartupComponent) {
+               const afterEffects = appConfig.afterStartupComponent(server);
+               if (afterEffects instanceof Promise) await afterEffects;
+            }
+         });
+      });
+
+      promiseHandler.once("failure", error => {
+         console.log("Server failed to start with the error", error);
+         process.exit(1);
+      });
 
       promiseHandler.promises.length > 0
          ? promiseHandler.executePromises()

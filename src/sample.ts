@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Application, NextFunction, Request, Response } from "express";
 import { ApplicationServer } from "./core/ApplicationServer";
 import { GET, POST } from "./core/ControllerMethods";
 import { PostRouteHandlers } from "./core/PostRouteHandlers";
@@ -10,6 +10,7 @@ import { Factory } from "./core/Factory";
 import { Imports } from "./core/Imports";
 import { OnResponseEnd } from "./core/OnResponseEnd";
 import { ErrorHandler } from "./core/ErrorHandler";
+import { OnServerActive } from "./core/OnServerActive";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -70,11 +71,20 @@ export class TestDecorators {
    }
 
    @OnServerStartup
-   async method3() {
+   async method3(app: Application) {
       console.log("DB connection, perhaps...");
       await new Promise((resolve, _) =>
          setTimeout(() => resolve("yes..."), 500)
       );
+      app.get("/secret", (_: Request, res: Response) => res.send("Secret"));
+      app.get("/another-secret", (_: Request, res: Response) =>
+         res.send("Secret")
+      );
+   }
+
+   @OnServerActive
+   serverHealthCheck() {
+      console.log("server started");
    }
 
    @PreRouteHandlers(preHandler)

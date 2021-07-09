@@ -4,6 +4,7 @@ export * from "./ErrorHandler";
 export * from "./Factory";
 export * from "./Imports";
 export * from "./OnResponseEnd";
+export * from "./OnServerActive";
 export * from "./OnServerStartup";
 export * from "./PostRouteHandlers";
 export * from "./PreRouteHandlers";
