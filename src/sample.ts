@@ -10,7 +10,7 @@ import { Factory } from "./core/Factory";
 import { Imports } from "./core/Imports";
 import { OnResponseEnd } from "./core/OnResponseEnd";
 import { ErrorHandler } from "./core/ErrorHandler";
-import { OnServerActive } from "./core/OnServerActive";
+import { OnServerStartup } from "./core/OnServerStartup";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -78,7 +78,7 @@ export class TestDecorators {
       app.get("/another-secret", (_: Request, res: Response) => res.send("Secret"));
    }
 
-   @OnServerActive
+   @OnServerStartup
    serverHealthCheck() {
       console.log("server started");
    }
