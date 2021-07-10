@@ -5,7 +5,7 @@ export * from "./Factory";
 export * from "./Imports";
 export * from "./OnResponseEnd";
 export * from "./OnServerActive";
-export * from "./OnServerStartup";
+export * from "./OnServerInit";
 export * from "./PostRouteHandlers";
 export * from "./PreRouteHandlers";
 export * from "./RestController";

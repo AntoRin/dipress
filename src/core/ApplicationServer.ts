@@ -2,14 +2,10 @@ import "reflect-metadata";
 import express, { Application, RequestHandler, Router } from "express";
 import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
-import { isFunction } from "../utils/functionCheck";
+import { isFunctionTypeOnly } from "../utils/functionCheck";
 import { ServerConfig } from "../types";
 
-export function ApplicationServer(
-   appHandler?: Application | null,
-   port: number = 5000,
-   verbose: boolean = false
-) {
+export function ApplicationServer(appHandler?: Application | null, port: number = 5000, verbose: boolean = false) {
    return function (constructor: Function) {
       const target: any = constructor.prototype;
       const app: Application = appHandler ? appHandler : express();
@@ -24,61 +20,39 @@ export function ApplicationServer(
          if (Reflect.getMetadata("startup-component", target, propName)) {
             const componentResult: any = target[propName](app);
 
-            if (componentResult instanceof Promise)
-               promiseHandler.addNewPromise(componentResult);
-         } else if (
-            Reflect.getMetadata("controller-imports", target, propName) &&
-            !appConfig.controllers
-         ) {
+            if (componentResult instanceof Promise) promiseHandler.addNewPromise(componentResult);
+         } else if (Reflect.getMetadata("controller-imports", target, propName) && !appConfig.controllers) {
             const controllers: any = target[propName]();
 
-            if (!isFunction(controllers))
-               throw new Error("Invalid controller imports");
+            if (!isFunctionTypeOnly(controllers)) throw new Error("Invalid controller imports");
 
             appConfig = {
                ...appConfig,
                controllers: ([] as Array<Function>).concat(controllers),
             };
-         } else if (
-            Reflect.getMetadata("error-handler", target, propName) &&
-            !appConfig.errorHandler
-         ) {
+         } else if (Reflect.getMetadata("error-handler", target, propName) && !appConfig.errorHandler) {
             const errorHandler: Array<any> = ([] as Array<any>).concat(
-               Reflect.getMetadata("isFactory", target, propName)
-                  ? target[propName]()
-                  : target[propName]
+               Reflect.getMetadata("isFactory", target, propName) ? target[propName]() : target[propName]
             );
 
-            if (!isFunction(errorHandler))
-               throw new Error("Invalid type: expected function");
+            if (!isFunctionTypeOnly(errorHandler)) throw new Error("Invalid type: expected function");
 
             appConfig = {
                ...appConfig,
                errorHandler: errorHandler[0],
             };
-         } else if (
-            Reflect.getMetadata("application-catch-all", target, propName) &&
-            !appConfig.catchAll
-         ) {
-            const catchAll: any = Reflect.getMetadata(
-               "isFactory",
-               target,
-               propName
-            )
-               ? target[propName]()
-               : target[propName];
+         } else if (Reflect.getMetadata("application-catch-all", target, propName) && !appConfig.catchAll) {
+            const catchAll: any = ([] as Array<any>).concat(
+               Reflect.getMetadata("isFactory", target, propName) ? target[propName]() : target[propName]
+            );
 
-            if (!isFunction(catchAll))
-               throw new Error("Invalid type: expected functions");
+            if (!isFunctionTypeOnly(catchAll)) throw new Error("Invalid type: expected functions");
 
             appConfig = {
                ...appConfig,
-               catchAll,
+               catchAll: catchAll[0],
             };
-         } else if (
-            Reflect.getMetadata("after-startup-component", target, propName) &&
-            !appConfig.afterStartupComponent
-         ) {
+         } else if (Reflect.getMetadata("after-startup-component", target, propName) && !appConfig.afterStartupComponent) {
             appConfig = {
                ...appConfig,
                afterStartupComponent: target[propName],
@@ -87,36 +61,23 @@ export function ApplicationServer(
       }
 
       promiseHandler.once("success", () => {
-         const appControllers: Array<Function> | undefined =
-            appConfig.controllers;
+         const appControllers: Array<Function> | undefined = appConfig.controllers;
 
          if (!appControllers) throw new Error("No controllers to initialize");
 
          for (const controller of appControllers) {
-            const router: Router = Reflect.getMetadata(
-               "controller-router",
-               controller.prototype
-            );
+            const router: Router = Reflect.getMetadata("controller-router", controller.prototype);
+
             if (!router) continue;
 
-            app.use(
-               Reflect.getMetadata(
-                  "controller-base-path",
-                  controller.prototype
-               ),
-               router
-            );
+            app.use(Reflect.getMetadata("controller-base-path", controller.prototype), router);
          }
 
-         const catchAll: RequestHandler | Array<RequestHandler> | undefined =
-            appConfig.catchAll;
+         const catchAll: RequestHandler | Array<RequestHandler> | undefined = appConfig.catchAll;
 
-         catchAll && app.use(catchAll);
+         catchAll && app.use("*", catchAll);
 
-         const errorHandler:
-            | RequestHandler
-            | Array<RequestHandler>
-            | undefined = appConfig.errorHandler;
+         const errorHandler: RequestHandler | Array<RequestHandler> | undefined = appConfig.errorHandler;
 
          errorHandler && app.use(errorHandler);
 
@@ -136,8 +97,6 @@ export function ApplicationServer(
          process.exit(1);
       });
 
-      promiseHandler.promises.length > 0
-         ? promiseHandler.executePromises()
-         : promiseHandler.emit("success");
+      promiseHandler.promises.length > 0 ? promiseHandler.executePromises() : promiseHandler.emit("success");
    };
 }

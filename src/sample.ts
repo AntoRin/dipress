@@ -4,7 +4,7 @@ import { GET, POST } from "./core/ControllerMethods";
 import { PostRouteHandlers } from "./core/PostRouteHandlers";
 import { PreRouteHandlers } from "./core/PreRouteHandlers";
 import { RestController } from "./core/RestController";
-import { OnServerStartup } from "./core/OnServerStartup";
+import { OnServerInit } from "./core/OnServerInit";
 import { UseMiddlewares } from "./core/UseMiddlewares";
 import { Factory } from "./core/Factory";
 import { Imports } from "./core/Imports";
@@ -70,16 +70,12 @@ export class TestDecorators {
       return next();
    }
 
-   @OnServerStartup
+   @OnServerInit
    async method3(app: Application) {
       console.log("DB connection, perhaps...");
-      await new Promise((resolve, _) =>
-         setTimeout(() => resolve("yes..."), 500)
-      );
+      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 500));
       app.get("/secret", (_: Request, res: Response) => res.send("Secret"));
-      app.get("/another-secret", (_: Request, res: Response) =>
-         res.send("Secret")
-      );
+      app.get("/another-secret", (_: Request, res: Response) => res.send("Secret"));
    }
 
    @OnServerActive

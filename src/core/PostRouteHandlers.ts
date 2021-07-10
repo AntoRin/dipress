@@ -1,14 +1,11 @@
 import { RequestHandler } from "express";
 import "reflect-metadata";
 import { RouteData } from "../types";
-import { isFunction } from "../utils/functionCheck";
+import { isFunctionTypeOnly } from "../utils/functionCheck";
 
-export function PostRouteHandlers(
-   handlers: RequestHandler | Array<RequestHandler>
-) {
+export function PostRouteHandlers(handlers: RequestHandler | Array<RequestHandler>) {
    return function (target: Object, key: string, _: PropertyDescriptor) {
-      if (!isFunction(handlers))
-         throw new Error("Only functions are to be passed in for handlers");
+      if (!isFunctionTypeOnly(handlers)) throw new Error("Only functions are to be passed in for handlers");
 
       const postHandlerMetaData: RouteData = {
          ...Reflect.getMetadata("route", target, key),
