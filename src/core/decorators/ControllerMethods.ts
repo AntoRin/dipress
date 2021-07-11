@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { RouteData } from "../types";
+import { RouteData } from "core/interfaces/RouteData";
 
 export function GET(route: string) {
    return function (target: Object, key: string, _: PropertyDescriptor) {

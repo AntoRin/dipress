@@ -3,7 +3,7 @@ import express, { Application, RequestHandler, Router } from "express";
 import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
 import { isFunctionTypeOnly } from "../utils/functionCheck";
-import { ServerConfig } from "../types";
+import { ServerConfig } from "core/interfaces/ServerConfig";
 
 export function ApplicationServer(appHandler?: Application | null, port: number = 5000, verbose: boolean = false) {
    return function (constructor: Function) {

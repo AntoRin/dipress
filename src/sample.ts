@@ -1,16 +1,18 @@
 import { Application, NextFunction, Request, Response } from "express";
-import { ApplicationServer } from "./core/ApplicationServer";
-import { GET, POST } from "./core/ControllerMethods";
-import { PostRouteHandlers } from "./core/PostRouteHandlers";
-import { PreRouteHandlers } from "./core/PreRouteHandlers";
-import { RestController } from "./core/RestController";
-import { OnServerInit } from "./core/OnServerInit";
-import { UseMiddlewares } from "./core/UseMiddlewares";
-import { Factory } from "./core/Factory";
-import { Imports } from "./core/Imports";
-import { OnResponseEnd } from "./core/OnResponseEnd";
-import { ErrorHandler } from "./core/ErrorHandler";
-import { OnServerStartup } from "./core/OnServerStartup";
+import {
+   ApplicationServer,
+   GET,
+   POST,
+   RestController,
+   OnServerInit,
+   OnServerStartup,
+   Factory,
+   Imports,
+   WildcardHandler,
+   ErrorHandler,
+   OnRequestEntry,
+   OnRequestExit,
+} from "./core/decorators";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -27,27 +29,30 @@ function preHandler(_: Request, __: Response, next: NextFunction) {
    return next();
 }
 
-function postHandler(_: Request, __: Response) {
+function postHandler(_: Request, __: Response, next: NextFunction) {
    console.log("postHandler hit!!!");
+   next();
 }
 
-function factory(_: Request, res: Response, __: NextFunction) {
+function factory(_: Request, ___: Response, __: NextFunction) {
    console.log("hit");
 
-   res.send("Factory route");
+   // res.send("Factory route");
 }
 
-@UseMiddlewares([secondMidMan])
 @RestController("/")
+@OnRequestEntry(secondMidMan)
 class MoreEndpoints {
    @GET("/v2")
-   index(_: Request, res: Response) {
+   index(_: Request, res: Response, __: NextFunction) {
       res.send("Index path");
+      // next();
    }
 }
 
 @ApplicationServer(null, 5000, true)
-@UseMiddlewares(midMan)
+@OnRequestEntry(midMan)
+@OnRequestExit(factory)
 @RestController("/api")
 export class TestDecorators {
    @Imports
@@ -55,7 +60,7 @@ export class TestDecorators {
       return [MoreEndpoints, TestDecorators];
    }
 
-   @PreRouteHandlers(preHandler)
+   @OnRequestEntry(preHandler)
    @GET("/home")
    method1(_: Request, __: Response) {
       throw new Error("Error handler where you at");
@@ -63,8 +68,8 @@ export class TestDecorators {
    }
 
    @GET("/about")
-   @PreRouteHandlers(preHandler)
-   @PostRouteHandlers(postHandler)
+   @OnRequestEntry(preHandler)
+   @OnRequestExit(postHandler)
    method2(_: Request, res: Response, next: NextFunction) {
       res.send("about page");
       return next();
@@ -83,14 +88,14 @@ export class TestDecorators {
       console.log("server started");
    }
 
-   @PreRouteHandlers(preHandler)
+   @OnRequestEntry(preHandler)
    @GET("/factory")
    @Factory
    method4() {
       return [factory];
    }
 
-   @PostRouteHandlers([postHandler])
+   @OnRequestExit([postHandler])
    @POST("/check")
    method5(_: Request, res: Response) {
       console.log("post method");
@@ -102,7 +107,7 @@ export class TestDecorators {
       res.json({ status: "error", error: error.message });
    }
 
-   @OnResponseEnd
+   @WildcardHandler
    catchAll(_: Request, res: Response) {
       res.send("Not found");
    }
