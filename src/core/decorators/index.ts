@@ -1,4 +1,5 @@
 export * from "./ApplicationServer";
+export * from "./Component";
 export * from "./ControllerMethods";
 export * from "./ErrorHandler";
 export * from "./Factory";

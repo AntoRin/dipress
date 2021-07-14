@@ -1,3 +1,4 @@
+import { ControllerModel } from "core/interfaces/ControllerModel";
 import { Application } from "express";
 
 export class PathMap {
@@ -15,6 +16,16 @@ export class PathMap {
       return this._pathMapInstance;
    }
 
+   public displayDetailedPathMap(controllerModels: ControllerModel[]) {
+      for (const model of controllerModels) {
+         console.log(`Controller Name =>> ${model.controllerName}\n`);
+         console.log("Entry Middleware_____________________", model.entryMiddleware);
+         console.table(model.endPoints);
+         console.log("Exit Middleware_____________________", model.exitMiddleware, "\n\n");
+         console.log(`-----End of Controller-----\n`);
+      }
+   }
+
    public displayPathMap(app: Application) {
       app._router?.stack.forEach(this.printRouteMap.bind(null, []));
       console.table(this._pathList);
@@ -23,21 +34,12 @@ export class PathMap {
 
    public printRouteMap(path: any, layer: any) {
       if (layer.route) {
-         layer.route.stack.forEach(
-            this.printRouteMap.bind(
-               null,
-               path.concat(this.split(layer.route.path))
-            )
-         );
+         layer.route.stack.forEach(this.printRouteMap.bind(null, path.concat(this.split(layer.route.path))));
       } else if (layer.name === "router" && layer.handle.stack) {
-         layer.handle.stack.forEach(
-            this.printRouteMap.bind(null, path.concat(this.split(layer.regexp)))
-         );
+         layer.handle.stack.forEach(this.printRouteMap.bind(null, path.concat(this.split(layer.regexp))));
       } else if (layer.method) {
          return this._pathList.push({
-            route:
-               "/" +
-               path.concat(this.split(layer.regexp)).filter(Boolean).join("/"),
+            route: "/" + path.concat(this.split(layer.regexp)).filter(Boolean).join("/"),
             handler: layer.name,
             method: layer.method.toUpperCase(),
          });
@@ -54,12 +56,8 @@ export class PathMap {
             .toString()
             .replace("\\/?", "")
             .replace("(?=\\/|$)", "$")
-            .match(
-               /^\/\^((?:\\[.*+?^${}()|[\]\\\/]|[^.*+?^${}()|[\]\\\/])*)\$\//
-            );
-         return match
-            ? match[1].replace(/\\(.)/g, "$1").split("/")
-            : "<complex:" + thing.toString() + ">";
+            .match(/^\/\^((?:\\[.*+?^${}()|[\]\\\/]|[^.*+?^${}()|[\]\\\/])*)\$\//);
+         return match ? match[1].replace(/\\(.)/g, "$1").split("/") : "<complex:" + thing.toString() + ">";
       }
    }
 }

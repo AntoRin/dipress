@@ -3,7 +3,6 @@ import { Application } from "express";
 export interface ApplicationOptions {
    appHandler?: Application;
    port?: number;
-   verbose?: boolean;
+   verbose?: "no" | "minimal" | "detailed";
    controllers: Function[];
-   services?: Function[];
 }

@@ -1,3 +1,4 @@
+import { Component } from "./core/decorators/Component";
 import { Application, NextFunction, Request, Response } from "express";
 import {
    ApplicationServer,
@@ -39,16 +40,32 @@ function factory(_: Request, ___: Response, __: NextFunction) {
    // res.send("Factory route");
 }
 
+@Component()
+class ServiceDep {
+   dep() {
+      return "dependency of dependencies";
+   }
+}
+
+@Component()
 class Service {
+   constructor(private _serviceDep: ServiceDep) {}
    serviceMethod(): string {
-      return "service called";
+      return "service called" + this._serviceDep.dep();
+   }
+}
+
+@Component()
+class AnotherService {
+   anotherServiceMethod(): string {
+      return "anotherService called";
    }
 }
 
 @RestController("/")
 @OnRequestEntry(secondMidMan)
 class MoreEndpoints {
-   public constructor(private _service: Service) {}
+   public constructor(private _service: Service, private _anotherService: AnotherService) {}
 
    @GET("/v2")
    index(_: Request, res: Response, __: NextFunction) {
@@ -57,15 +74,14 @@ class MoreEndpoints {
 
    @GET("/private")
    sayHello(req: Request, res: Response) {
-      res.send(this._service.serviceMethod());
+      res.send(`${this._service.serviceMethod()} ${this._anotherService.anotherServiceMethod()}`);
    }
 }
 
 @ApplicationServer({
    port: 5000,
-   verbose: true,
+   verbose: "no",
    controllers: [MoreEndpoints, TestDecorators],
-   services: [Service],
 })
 @OnRequestEntry(midMan)
 @OnRequestExit(factory)
@@ -103,7 +119,6 @@ export class TestDecorators {
    @GET("/factory")
    @Factory
    method4() {
-      console.log("this in factory", this);
       return [factory];
    }
 

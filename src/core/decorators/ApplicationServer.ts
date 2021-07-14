@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import express, { Application, RequestHandler, Router } from "express";
+import express, { Application, RequestHandler } from "express";
 import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
 import { isFunctionTypeOnly } from "../utils/functionCheck";
@@ -8,8 +8,9 @@ import { ApplicationOptions } from "core/interfaces/ApplicationOptions";
 import { container } from "../DI/Container";
 import { createMappedRouter } from "../utils/mapRoutes";
 import { ControllerMetadata } from "core/interfaces/ControllerMetadata";
+import { ControllerModel } from "core/interfaces/ControllerModel";
 
-export function ApplicationServer({ appHandler, port = 5000, verbose = false, controllers = [] }: ApplicationOptions) {
+export function ApplicationServer({ appHandler, port = 5000, verbose = "no", controllers = [] }: ApplicationOptions) {
    return function (constructor: Function) {
       const app: Application = appHandler || express();
 
@@ -72,10 +73,14 @@ export function ApplicationServer({ appHandler, port = 5000, verbose = false, co
 
          if (!appControllers) throw new Error("No controllers to initialize");
 
+         let printableModel: ControllerModel[] = [];
+
          for (const controller of appControllers) {
             const controllerInstance = container.resolveInstance(controller);
 
-            const router: Router = createMappedRouter(controllerInstance);
+            const { router, model } = createMappedRouter(controllerInstance);
+
+            printableModel.push(model);
 
             const metadata: ControllerMetadata = Reflect.getMetadata("controller:metadata", Object.getPrototypeOf(controllerInstance));
 
@@ -90,7 +95,11 @@ export function ApplicationServer({ appHandler, port = 5000, verbose = false, co
 
          errorHandler && app.use(errorHandler);
 
-         verbose && pathMap.displayPathMap(app);
+         verbose === "detailed"
+            ? printableModel && pathMap.displayDetailedPathMap(printableModel)
+            : verbose === "minimal"
+            ? pathMap.displayPathMap(app)
+            : null;
 
          const server = app.listen(port, async () => {
             console.log(`Server listening on port ${port}`);

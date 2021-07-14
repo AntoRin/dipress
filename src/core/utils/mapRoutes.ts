@@ -1,16 +1,30 @@
 import { ControllerMetadata } from "core/interfaces/ControllerMetadata";
+import { ControllerModel, EndPoint } from "core/interfaces/ControllerModel";
 import { RouteData } from "core/interfaces/RouteData";
 import { RequestHandler, Router } from "express";
 
-export function createMappedRouter(controllerInstance: any): Router {
+export function createMappedRouter(controllerInstance: any): { router: Router; model: ControllerModel } {
    const router: Router = Router();
+
+   let controllerInfo: ControllerModel = {
+      controllerName: controllerInstance.constructor.name,
+      entryMiddleware: [],
+      exitMiddleware: [],
+      endPoints: [],
+   };
 
    const controllerMetadata: ControllerMetadata = Reflect.getMetadata(
       "controller:metadata",
       Object.getPrototypeOf(controllerInstance)
    );
 
-   controllerMetadata.entryHandlers && controllerMetadata.entryHandlers.length > 0 && router.use(controllerMetadata.entryHandlers);
+   if (controllerMetadata.entryHandlers && controllerMetadata.entryHandlers.length > 0) {
+      router.use(controllerMetadata.entryHandlers);
+      controllerInfo.entryMiddleware = [
+         ...controllerInfo.entryMiddleware,
+         ...controllerMetadata.entryHandlers.map(handler => handler.name),
+      ];
+   }
 
    for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(controllerInstance))) {
       if (typeof controllerInstance[propName] !== "function" || propName === "constructor") continue;
@@ -19,7 +33,18 @@ export function createMappedRouter(controllerInstance: any): Router {
 
       if (!metaData) continue;
 
-      metaData.preRouteHandlers && router.use(`${metaData.endPoint}`, metaData.preRouteHandlers);
+      let thisEndpoint: EndPoint = {
+         path: metaData.endPoint,
+         handlerName: propName,
+         method: "GET",
+         entryMiddleware: [],
+         exitMiddleware: [],
+      };
+
+      if (metaData.preRouteHandlers) {
+         router.use(`${metaData.endPoint}`, metaData.preRouteHandlers);
+         thisEndpoint.entryMiddleware = [...thisEndpoint.entryMiddleware, ...metaData.preRouteHandlers.map(handler => handler.name)];
+      }
 
       const endPointHandler: RequestHandler[] = ([] as RequestHandler[]).concat(
          Reflect.getMetadata("isFactory", controllerInstance, propName)
@@ -30,22 +55,40 @@ export function createMappedRouter(controllerInstance: any): Router {
       switch (metaData.method) {
          case "get":
             router.get(metaData.endPoint, endPointHandler);
+            thisEndpoint.method = "GET";
             break;
          case "post":
             router.post(metaData.endPoint, endPointHandler);
+            thisEndpoint.method = "POST";
             break;
          case "put":
             router.put(metaData.endPoint, endPointHandler);
+            thisEndpoint.method = "PUT";
             break;
          case "delete":
             router.delete(metaData.endPoint, endPointHandler);
+            thisEndpoint.method = "DELETE";
             break;
       }
 
-      metaData.postRouteHandlers && router.use(metaData.endPoint, metaData.postRouteHandlers);
+      if (metaData.postRouteHandlers) {
+         router.use(`${metaData.endPoint}`, metaData.postRouteHandlers);
+         thisEndpoint.exitMiddleware = [...thisEndpoint.exitMiddleware, ...metaData.postRouteHandlers.map(handler => handler.name)];
+      }
+
+      controllerInfo.endPoints.push(thisEndpoint);
    }
 
-   controllerMetadata.exitHandlers && controllerMetadata.exitHandlers.length > 0 && router.use(controllerMetadata.exitHandlers);
+   if (controllerMetadata.exitHandlers && controllerMetadata.exitHandlers.length > 0) {
+      router.use(controllerMetadata.exitHandlers);
+      controllerInfo.exitMiddleware = [
+         ...controllerInfo.exitMiddleware,
+         ...controllerMetadata.exitHandlers.map(handler => handler.name),
+      ];
+   }
 
-   return router;
+   return {
+      router,
+      model: controllerInfo,
+   };
 }
