@@ -4,35 +4,37 @@ import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
 import { isFunctionTypeOnly } from "../utils/functionCheck";
 import { ServerConfig } from "core/interfaces/ServerConfig";
+import { ApplicationOptions } from "core/interfaces/ApplicationOptions";
+import { container } from "../DI/Container";
+import { createMappedRouter } from "../utils/mapRoutes";
+import { ControllerMetadata } from "core/interfaces/ControllerMetadata";
 
-export function ApplicationServer(appHandler?: Application | null, port: number = 5000, verbose: boolean = false) {
+export function ApplicationServer({ appHandler, port = 5000, verbose = false, controllers = [] }: ApplicationOptions) {
    return function (constructor: Function) {
-      const target: any = constructor.prototype;
-      const app: Application = appHandler ? appHandler : express();
+      const app: Application = appHandler || express();
 
       let appConfig: ServerConfig = {};
 
+      if (!isFunctionTypeOnly(controllers)) throw new Error("Invalid controllers");
+
+      appConfig.controllers = controllers;
+
       const promiseHandler: PromiseHandler = new PromiseHandler();
 
-      for (const propName of Object.getOwnPropertyNames(target)) {
-         if (typeof target[propName] !== "function") continue;
+      const applicationInstance = container.resolveInstance(constructor);
 
-         if (Reflect.getMetadata("startup-component", target, propName)) {
-            const componentResult: any = target[propName](app);
+      for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(applicationInstance))) {
+         if (typeof applicationInstance[propName] !== "function") continue;
+
+         if (Reflect.getMetadata("startup-component", applicationInstance, propName)) {
+            const componentResult: any = applicationInstance[propName](app);
 
             if (componentResult instanceof Promise) promiseHandler.addNewPromise(componentResult);
-         } else if (Reflect.getMetadata("controller-imports", target, propName) && !appConfig.controllers) {
-            const controllers: any = target[propName]();
-
-            if (!isFunctionTypeOnly(controllers)) throw new Error("Invalid controller imports");
-
-            appConfig = {
-               ...appConfig,
-               controllers: ([] as Array<Function>).concat(controllers),
-            };
-         } else if (Reflect.getMetadata("error-handler", target, propName) && !appConfig.errorHandler) {
-            const errorHandler: Array<any> = ([] as Array<any>).concat(
-               Reflect.getMetadata("isFactory", target, propName) ? target[propName]() : target[propName]
+         } else if (Reflect.getMetadata("error-handler", applicationInstance, propName) && !appConfig.errorHandler) {
+            const errorHandler: any[] = ([] as any[]).concat(
+               Reflect.getMetadata("isFactory", applicationInstance, propName)
+                  ? applicationInstance[propName]()
+                  : applicationInstance[propName]
             );
 
             if (!isFunctionTypeOnly(errorHandler)) throw new Error("Invalid type: expected function");
@@ -41,9 +43,11 @@ export function ApplicationServer(appHandler?: Application | null, port: number 
                ...appConfig,
                errorHandler: errorHandler[0],
             };
-         } else if (Reflect.getMetadata("application-catch-all", target, propName) && !appConfig.catchAll) {
-            const catchAll: any = ([] as Array<any>).concat(
-               Reflect.getMetadata("isFactory", target, propName) ? target[propName]() : target[propName]
+         } else if (Reflect.getMetadata("application-catch-all", applicationInstance, propName) && !appConfig.catchAll) {
+            const catchAll: any = ([] as any[]).concat(
+               Reflect.getMetadata("isFactory", applicationInstance, propName)
+                  ? applicationInstance[propName]()
+                  : applicationInstance[propName]
             );
 
             if (!isFunctionTypeOnly(catchAll)) throw new Error("Invalid type: expected functions");
@@ -52,25 +56,30 @@ export function ApplicationServer(appHandler?: Application | null, port: number 
                ...appConfig,
                catchAll: catchAll[0],
             };
-         } else if (Reflect.getMetadata("after-startup-component", target, propName) && !appConfig.afterStartupComponent) {
+         } else if (
+            Reflect.getMetadata("after-startup-component", applicationInstance, propName) &&
+            !appConfig.afterStartupComponent
+         ) {
             appConfig = {
                ...appConfig,
-               afterStartupComponent: target[propName],
+               afterStartupComponent: applicationInstance[propName],
             };
          }
       }
 
       promiseHandler.once("success", () => {
-         const appControllers: Array<Function> | undefined = appConfig.controllers;
+         const appControllers: Function[] | undefined = appConfig.controllers;
 
          if (!appControllers) throw new Error("No controllers to initialize");
 
          for (const controller of appControllers) {
-            const router: Router = Reflect.getMetadata("controller-router", controller.prototype);
+            const controllerInstance = container.resolveInstance(controller);
 
-            if (!router) continue;
+            const router: Router = createMappedRouter(controllerInstance);
 
-            app.use(Reflect.getMetadata("controller-base-path", controller.prototype), router);
+            const metadata: ControllerMetadata = Reflect.getMetadata("controller:metadata", Object.getPrototypeOf(controllerInstance));
+
+            app.use(metadata.basePath, router);
          }
 
          const catchAll: RequestHandler | Array<RequestHandler> | undefined = appConfig.catchAll;

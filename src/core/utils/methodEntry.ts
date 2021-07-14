@@ -4,7 +4,7 @@ import { RouteData } from "core/interfaces/RouteData";
 import { isFunctionTypeOnly } from "./functionCheck";
 
 export function handleMethodRequestEntry(
-   handlers: RequestHandler | Array<RequestHandler>,
+   handlers: RequestHandler | RequestHandler[],
    target: Object,
    key: string,
    _: PropertyDescriptor
@@ -13,7 +13,7 @@ export function handleMethodRequestEntry(
 
    const preHandlerMetaData: RouteData = {
       ...Reflect.getMetadata("route", target, key),
-      preRouteHandlers: ([] as Array<RequestHandler>).concat(handlers),
+      preRouteHandlers: ([] as RequestHandler[]).concat(handlers),
    };
 
    Reflect.defineMetadata("route", preHandlerMetaData, target, key);

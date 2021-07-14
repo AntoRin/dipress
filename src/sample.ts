@@ -7,7 +7,6 @@ import {
    OnServerInit,
    OnServerStartup,
    Factory,
-   Imports,
    WildcardHandler,
    ErrorHandler,
    OnRequestEntry,
@@ -40,26 +39,38 @@ function factory(_: Request, ___: Response, __: NextFunction) {
    // res.send("Factory route");
 }
 
-@RestController("/")
-@OnRequestEntry(secondMidMan)
-class MoreEndpoints {
-   @GET("/v2")
-   index(_: Request, res: Response, __: NextFunction) {
-      res.send("Index path");
-      // next();
+class Service {
+   serviceMethod(): string {
+      return "service called";
    }
 }
 
-@ApplicationServer(null, 5000, true)
+@RestController("/")
+@OnRequestEntry(secondMidMan)
+class MoreEndpoints {
+   public constructor(private _service: Service) {}
+
+   @GET("/v2")
+   index(_: Request, res: Response, __: NextFunction) {
+      res.send("Index path");
+   }
+
+   @GET("/private")
+   sayHello(req: Request, res: Response) {
+      res.send(this._service.serviceMethod());
+   }
+}
+
+@ApplicationServer({
+   port: 5000,
+   verbose: true,
+   controllers: [MoreEndpoints, TestDecorators],
+   services: [Service],
+})
 @OnRequestEntry(midMan)
 @OnRequestExit(factory)
 @RestController("/api")
 export class TestDecorators {
-   @Imports
-   controllers(): any {
-      return [MoreEndpoints, TestDecorators];
-   }
-
    @OnRequestEntry(preHandler)
    @GET("/home")
    method1(_: Request, __: Response) {
@@ -78,7 +89,7 @@ export class TestDecorators {
    @OnServerInit
    async method3(app: Application) {
       console.log("DB connection, perhaps...");
-      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 500));
+      await new Promise((resolve, _) => setTimeout(() => resolve("yes...")));
       app.get("/secret", (_: Request, res: Response) => res.send("Secret"));
       app.get("/another-secret", (_: Request, res: Response) => res.send("Secret"));
    }
@@ -92,6 +103,7 @@ export class TestDecorators {
    @GET("/factory")
    @Factory
    method4() {
+      console.log("this in factory", this);
       return [factory];
    }
 
