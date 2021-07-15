@@ -1,7 +1,7 @@
-import { ControllerMetadata } from "core/interfaces/ControllerMetadata";
-import { ControllerModel, EndPoint } from "core/interfaces/ControllerModel";
-import { RouteData } from "core/interfaces/RouteData";
 import { RequestHandler, Router } from "express";
+import { ControllerMetadata } from "../interfaces/ControllerMetadata";
+import { ControllerModel, EndPoint } from "../interfaces/ControllerModel";
+import { RouteData } from "../interfaces/RouteData";
 
 export function createMappedRouter(controllerInstance: any): { router: Router; model: ControllerModel } {
    const router: Router = Router();

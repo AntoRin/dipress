@@ -3,7 +3,6 @@ export * from "./Component";
 export * from "./ControllerMethods";
 export * from "./ErrorHandler";
 export * from "./Factory";
-export * from "./Imports";
 export * from "./OnRequestEntry";
 export * from "./OnRequestExit";
 export * from "./WildcardHandler";

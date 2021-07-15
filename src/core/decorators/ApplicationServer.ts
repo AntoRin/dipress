@@ -1,17 +1,24 @@
 import "reflect-metadata";
 import express, { Application, RequestHandler } from "express";
+import { container } from "../DI/Container";
 import { PromiseHandler } from "../utils/PromiseHandler";
 import { pathMap } from "../utils/printRoutes";
 import { isFunctionTypeOnly } from "../utils/functionCheck";
-import { ServerConfig } from "core/interfaces/ServerConfig";
-import { ApplicationOptions } from "core/interfaces/ApplicationOptions";
-import { container } from "../DI/Container";
+import { ServerConfig } from "../interfaces/ServerConfig";
+import { ApplicationOptions } from "../interfaces/ApplicationOptions";
 import { createMappedRouter } from "../utils/mapRoutes";
-import { ControllerMetadata } from "core/interfaces/ControllerMetadata";
-import { ControllerModel } from "core/interfaces/ControllerModel";
+import { ControllerMetadata } from "../interfaces/ControllerMetadata";
+import { ControllerModel } from "../interfaces/ControllerModel";
 
-export function ApplicationServer({ appHandler, port = 5000, verbose = "no", controllers = [] }: ApplicationOptions) {
-   return function (constructor: Function) {
+/**
+ * @param ApplicationOptions: {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
+ *
+ * * Initialize application with controllers.
+ * * A new instance of app is created by default, but a pre-configured instance of express application can be used.
+ * * Using the verbose option logs controller and route details to the console.
+ */
+export function ApplicationServer({ controllers = [], port = 5000, appHandler, verbose = "no" }: ApplicationOptions) {
+   return function (constructor: Function): void {
       const app: Application = appHandler || express();
 
       let appConfig: ServerConfig = {};
@@ -21,7 +28,6 @@ export function ApplicationServer({ appHandler, port = 5000, verbose = "no", con
       appConfig.controllers = controllers;
 
       const promiseHandler: PromiseHandler = new PromiseHandler();
-
       const applicationInstance = container.resolveInstance(constructor);
 
       for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(applicationInstance))) {
@@ -87,11 +93,11 @@ export function ApplicationServer({ appHandler, port = 5000, verbose = "no", con
             app.use(metadata.basePath, router);
          }
 
-         const catchAll: RequestHandler | Array<RequestHandler> | undefined = appConfig.catchAll;
+         const catchAll: RequestHandler | RequestHandler[] | undefined = appConfig.catchAll;
 
          catchAll && app.use("*", catchAll);
 
-         const errorHandler: RequestHandler | Array<RequestHandler> | undefined = appConfig.errorHandler;
+         const errorHandler: RequestHandler | RequestHandler[] | undefined = appConfig.errorHandler;
 
          errorHandler && app.use(errorHandler);
 

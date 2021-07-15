@@ -80,7 +80,7 @@ class MoreEndpoints {
 
 @ApplicationServer({
    port: 5000,
-   verbose: "no",
+   verbose: "minimal",
    controllers: [MoreEndpoints, TestDecorators],
 })
 @OnRequestEntry(midMan)
