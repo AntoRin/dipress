@@ -1,5 +1,5 @@
 import { Component } from "./core/decorators/Component";
-import { Application, NextFunction, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import {
    ApplicationServer,
    GET,
@@ -12,6 +12,10 @@ import {
    ErrorHandler,
    OnRequestEntry,
    OnRequestExit,
+   Params,
+   Query,
+   Body,
+   Context,
 } from "./core/decorators";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
@@ -68,13 +72,17 @@ class MoreEndpoints {
    public constructor(private _service: Service, private _anotherService: AnotherService) {}
 
    @GET("/v2")
-   index(_: Request, res: Response, __: NextFunction) {
-      res.send("Index path");
+   index() {
+      return {
+         status: "super okay",
+         data: "no data for you",
+      };
    }
 
    @GET("/private")
    sayHello(req: Request, res: Response) {
-      res.send(`${this._service.serviceMethod()} ${this._anotherService.anotherServiceMethod()}`);
+      // res.send(`${this._service.serviceMethod()} ${this._anotherService.anotherServiceMethod()}`);
+      return this._service.serviceMethod() + " " + this._anotherService.anotherServiceMethod();
    }
 }
 
@@ -97,14 +105,15 @@ export class TestDecorators {
    @GET("/about")
    @OnRequestEntry(preHandler)
    @OnRequestExit(postHandler)
-   method2(_: Request, res: Response, next: NextFunction) {
-      res.send("about page");
-      return next();
+   method2(@Context() ctx: any) {
+      ctx.next();
+      return 2;
    }
 
    @OnServerInit
    async method3(app: Application) {
       console.log("DB connection, perhaps...");
+      app.use(express.json());
       await new Promise((resolve, _) => setTimeout(() => resolve("yes...")));
       app.get("/secret", (_: Request, res: Response) => res.send("Secret"));
       app.get("/another-secret", (_: Request, res: Response) => res.send("Secret"));
@@ -127,6 +136,15 @@ export class TestDecorators {
    method5(_: Request, res: Response) {
       console.log("post method");
       res.json({ status: "ok" });
+   }
+
+   @POST("/data/:id")
+   postCheck(@Query("q") query: any, @Params("id") params: any, @Body("body") reqBody: any) {
+      console.log("body through reqbody", reqBody);
+      console.log("params", params);
+      console.log("query", query);
+
+      return "done";
    }
 
    @ErrorHandler

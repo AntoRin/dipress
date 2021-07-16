@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { RequestHandler } from "express";
 import { isFunctionTypeOnly } from "./functionCheck";
-import { ControllerMetadata } from "core/interfaces/ControllerMetadata";
+import { ControllerMetadata } from "../interfaces/ControllerMetadata";
 
 export function handleControllerRequestEntry(middlewares: RequestHandler | RequestHandler[], constructor: Function) {
    if (!isFunctionTypeOnly(middlewares)) throw new Error("Only functions are to be passed in for handlers");

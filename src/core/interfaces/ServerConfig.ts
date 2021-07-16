@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
+import { constructor } from "../types";
 
 export interface ServerConfig {
-   controllers?: Array<Function>;
+   controllers?: constructor<any>[];
    errorHandler?: RequestHandler | Array<RequestHandler>;
    catchAll?: RequestHandler | Array<RequestHandler>;
    afterStartupComponent?: Function;

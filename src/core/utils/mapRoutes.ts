@@ -1,4 +1,5 @@
-import { RequestHandler, Router } from "express";
+import { NextFunction, Request, RequestHandler, Response, Router } from "express";
+import { ArgEntity } from "../interfaces/ArgEntity";
 import { ControllerMetadata } from "../interfaces/ControllerMetadata";
 import { ControllerModel, EndPoint } from "../interfaces/ControllerModel";
 import { RouteData } from "../interfaces/RouteData";
@@ -31,7 +32,7 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
 
       const metaData: RouteData | undefined = Reflect.getMetadata("route", controllerInstance, propName);
 
-      if (!metaData) continue;
+      if (!metaData || !metaData.endPoint) continue;
 
       let thisEndpoint: EndPoint = {
          path: metaData.endPoint,
@@ -42,15 +43,64 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       };
 
       if (metaData.preRouteHandlers) {
-         router.use(`${metaData.endPoint}`, metaData.preRouteHandlers);
+         router.use(metaData.endPoint, metaData.preRouteHandlers);
          thisEndpoint.entryMiddleware = [...thisEndpoint.entryMiddleware, ...metaData.preRouteHandlers.map(handler => handler.name)];
       }
 
-      const endPointHandler: RequestHandler[] = ([] as RequestHandler[]).concat(
-         Reflect.getMetadata("isFactory", controllerInstance, propName)
-            ? controllerInstance[propName].apply(controllerInstance, [])
-            : controllerInstance[propName].bind(controllerInstance)
-      );
+      let endPointHandler: RequestHandler | RequestHandler[] | null = null;
+
+      if (Reflect.getMetadata("isFactory", controllerInstance, propName)) {
+         endPointHandler = ([] as RequestHandler[]).concat(controllerInstance[propName].apply(controllerInstance, []));
+      } else {
+         endPointHandler = function (req: Request, res: Response, next: NextFunction) {
+            let methodArguments: any[] = [];
+
+            const argEntity: ArgEntity | undefined = Reflect.getMetadata("method:param", controllerInstance, propName);
+
+            if (argEntity) {
+               const argTypes: ArgEntity["argModel"] = argEntity.argModel;
+
+               argTypes.forEach(param => {
+                  switch (param.type) {
+                     case "context":
+                        methodArguments.push({
+                           req,
+                           res,
+                           next,
+                        });
+                        break;
+                     case "body":
+                        methodArguments.push(param.key ? req.body[param.key] : req.body);
+                        break;
+                     case "param":
+                        methodArguments.push(param.key ? req.params[param.key] : req.params);
+                        break;
+                     case "query":
+                        methodArguments.push(param.key ? req.query[param.key] : req.query);
+                        break;
+                  }
+               });
+            }
+
+            const methodResult = controllerInstance[propName].apply(controllerInstance, methodArguments);
+
+            if (!res.headersSent)
+               switch (typeof methodResult) {
+                  case "string":
+                     return res.send(methodResult);
+                  case "object":
+                     return res.json(methodResult);
+                  case "undefined":
+                     break;
+                  case "bigint":
+                  case "boolean":
+                  case "number":
+                     return res.send(methodResult.toString());
+                  default:
+                     return res.end();
+               }
+         };
+      }
 
       switch (metaData.method) {
          case "get":

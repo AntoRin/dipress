@@ -1,14 +1,16 @@
+import { constructor } from "../types";
+
 class Container {
    private static _containerInstance: Container | null = null;
    private _availableInstances: any[] = [];
 
    public static get Instance(): Container {
-      if (!this._containerInstance) this._containerInstance = new Container();
+      if (!Container._containerInstance) Container._containerInstance = new Container();
 
-      return this._containerInstance;
+      return Container._containerInstance;
    }
 
-   public resolveInstance(Resource: any): any {
+   public resolveInstance(Resource: constructor<any>): any {
       const available = this._availableInstances.find(instance => instance.constructor.name === Resource.name);
 
       if (available) return available;

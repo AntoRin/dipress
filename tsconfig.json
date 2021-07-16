@@ -6,7 +6,7 @@
       "sourceMap": true,
       "outDir": "./lib",
       "rootDir": "./src",
-      "removeComments": true,
+      "removeComments": false,
       "strict": true,
       "alwaysStrict": true,
       "moduleResolution": "node",
@@ -19,6 +19,8 @@
       "strictNullChecks": true,
       "strictFunctionTypes": true,
       "noUnusedParameters": false,
+      "strictBindCallApply": true,
+      "strictPropertyInitialization": true,
       "esModuleInterop": true,
       "declaration": true,
       "resolveJsonModule": true,
@@ -26,7 +28,7 @@
       "forceConsistentCasingInFileNames": true,
       "baseUrl": ".",
       "paths": {
-         "*": ["node_modules/*", "src/*"]
+         "*": ["node_modules/*"]
       }
    },
    "exclude": ["node_modules", "lib"]

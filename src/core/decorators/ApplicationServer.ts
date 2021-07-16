@@ -9,6 +9,7 @@ import { ApplicationOptions } from "../interfaces/ApplicationOptions";
 import { createMappedRouter } from "../utils/mapRoutes";
 import { ControllerMetadata } from "../interfaces/ControllerMetadata";
 import { ControllerModel } from "../interfaces/ControllerModel";
+import { constructor } from "../types";
 
 /**
  * @param ApplicationOptions: {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
@@ -18,7 +19,7 @@ import { ControllerModel } from "../interfaces/ControllerModel";
  * * Using the verbose option logs controller and route details to the console.
  */
 export function ApplicationServer({ controllers = [], port = 5000, appHandler, verbose = "no" }: ApplicationOptions) {
-   return function (constructor: Function): void {
+   return function (Constructor: constructor<any>): void {
       const app: Application = appHandler || express();
 
       let appConfig: ServerConfig = {};
@@ -28,7 +29,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
       appConfig.controllers = controllers;
 
       const promiseHandler: PromiseHandler = new PromiseHandler();
-      const applicationInstance = container.resolveInstance(constructor);
+      const applicationInstance = container.resolveInstance(Constructor);
 
       for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(applicationInstance))) {
          if (typeof applicationInstance[propName] !== "function") continue;
@@ -75,7 +76,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
       }
 
       promiseHandler.once("success", () => {
-         const appControllers: Function[] | undefined = appConfig.controllers;
+         const appControllers: constructor<any>[] | undefined = appConfig.controllers;
 
          if (!appControllers) throw new Error("No controllers to initialize");
 
