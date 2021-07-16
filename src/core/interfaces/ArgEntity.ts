@@ -1,4 +1,6 @@
+import { HandlerCtxField } from "../types";
+
 export interface ArgEntity {
-   argModel: { type: "context" | "param" | "query" | "body"; key?: string }[];
+   argModel: { type: HandlerCtxField; key?: string }[];
    index: number;
 }

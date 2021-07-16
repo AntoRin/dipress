@@ -105,9 +105,10 @@ export class TestDecorators {
    @GET("/about")
    @OnRequestEntry(preHandler)
    @OnRequestExit(postHandler)
-   method2(@Context() ctx: any) {
+   method2(@Context() ctx: any, @Query("aboutwhat") q: string) {
+      console.log(q);
       ctx.next();
-      return 2;
+      return ["ada"];
    }
 
    @OnServerInit

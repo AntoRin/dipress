@@ -90,12 +90,12 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
                      return res.send(methodResult);
                   case "object":
                      return res.json(methodResult);
-                  case "undefined":
-                     break;
                   case "bigint":
                   case "boolean":
                   case "number":
                      return res.send(methodResult.toString());
+                  case "undefined":
+                     break;
                   default:
                      return res.end();
                }
