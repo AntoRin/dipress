@@ -1,8 +1,8 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express";
-import { ArgEntity } from "../../interfaces/ArgEntity";
-import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
-import { ControllerModel, EndPoint } from "../../interfaces/ControllerModel";
-import { RouteData } from "../../interfaces/RouteData";
+import { ArgEntity } from "../../../interfaces/ArgEntity";
+import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
+import { ControllerModel, EndPoint } from "../../../interfaces/ControllerModel";
+import { RouteData } from "../../../interfaces/RouteData";
 
 export function createMappedRouter(controllerInstance: any): { router: Router; model: ControllerModel } {
    const router: Router = Router();

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { constructor } from "../../core/types";
+import { ObjectConstructor } from "../types";
 
 class Container {
    private static _containerInstance: Container | null = null;
@@ -15,7 +15,7 @@ class Container {
       return this._availableInstances;
    }
 
-   public resolveInstance(Resource: constructor<any>): any {
+   public resolveInstance(Resource: ObjectConstructor<any>): any {
       const available = this._availableInstances.find(instance => instance.constructor.name === Resource.name);
 
       if (available) return available;

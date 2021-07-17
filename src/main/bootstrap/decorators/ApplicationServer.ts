@@ -1,15 +1,15 @@
 import "reflect-metadata";
 import express, { Application, RequestHandler } from "express";
-import { container } from "../../../common/DI/Container";
+import { container } from "../../../DI/Container";
 import { PromiseHandler } from "../../../utils/PromiseHandler";
 import { pathMap } from "../../../utils/printRoutes";
 import { isFunctionTypeOnly } from "../../../utils/functionCheck";
-import { ServerConfig } from "../../interfaces/ServerConfig";
-import { ApplicationOptions } from "../../interfaces/ApplicationOptions";
-import { createMappedRouter } from "../helpers/mapRoutes";
-import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
-import { ControllerModel } from "../../interfaces/ControllerModel";
-import { constructor } from "../../types";
+import { ServerConfig } from "../../../interfaces/ServerConfig";
+import { ApplicationOptions } from "../../../interfaces/ApplicationOptions";
+import { createMappedRouter } from "../helpers/createMappedRouter";
+import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
+import { ControllerModel } from "../../../interfaces/ControllerModel";
+import { ObjectConstructor } from "../../../types";
 
 /**
  * @param ApplicationOptions: {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
@@ -19,7 +19,7 @@ import { constructor } from "../../types";
  * * Using the verbose option logs controller and route details to the console.
  */
 export function ApplicationServer({ controllers = [], port = 5000, appHandler, verbose = "no" }: ApplicationOptions) {
-   return function (Constructor: constructor<any>): void {
+   return function (Constructor: ObjectConstructor<any>): void {
       const app: Application = appHandler || express();
 
       let appConfig: ServerConfig = {};
@@ -76,7 +76,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
       }
 
       promiseHandler.once("success", () => {
-         const appControllers: constructor<any>[] | undefined = appConfig.controllers;
+         const appControllers: ObjectConstructor<any>[] | undefined = appConfig.controllers;
 
          if (!appControllers) throw new Error("No controllers to initialize");
 
