@@ -1,4 +1,5 @@
-import { constructor } from "../types";
+import "reflect-metadata";
+import { constructor } from "../../core/types";
 
 class Container {
    private static _containerInstance: Container | null = null;
@@ -8,6 +9,10 @@ class Container {
       if (!Container._containerInstance) Container._containerInstance = new Container();
 
       return Container._containerInstance;
+   }
+
+   public getAvailableInstances() {
+      return this._availableInstances;
    }
 
    public resolveInstance(Resource: constructor<any>): any {

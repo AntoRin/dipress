@@ -1,5 +1,6 @@
-import { Component } from "./core/decorators/Component";
+import { Component } from "./common/decorators/Component";
 import express, { Application, NextFunction, Request, Response } from "express";
+import { ErrorHandler, Factory } from "./common";
 import {
    ApplicationServer,
    GET,
@@ -7,16 +8,14 @@ import {
    RestController,
    OnServerInit,
    OnServerStartup,
-   Factory,
    WildcardHandler,
-   ErrorHandler,
    OnRequestEntry,
    OnRequestExit,
    Params,
    Query,
    Body,
    Context,
-} from "./core/decorators";
+} from "./core";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");

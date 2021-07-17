@@ -1,2 +1,2 @@
-export * from "./core/decorators";
-export * from "./core/DI/Container";
+export * from "./core";
+export * from "./common";

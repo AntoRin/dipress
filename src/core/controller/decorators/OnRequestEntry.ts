@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { RequestHandler } from "express";
-import { handleMethodRequestEntry } from "../utils/methodEntry";
-import { handleControllerRequestEntry } from "../utils/controllerEntry";
+import { handleMethodRequestEntry } from "../helpers/methodEntry";
+import { handleControllerRequestEntry } from "../helpers/controllerEntry";
 
 export function OnRequestEntry(handlers: RequestHandler | Array<RequestHandler>) {
    return function (decoratee: Function | Object, key?: string, descriptor?: PropertyDescriptor) {

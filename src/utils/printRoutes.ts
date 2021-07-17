@@ -1,5 +1,5 @@
 import { Application } from "express";
-import { ControllerModel } from "../interfaces/ControllerModel";
+import { ControllerModel } from "../core/interfaces/ControllerModel";
 
 export class PathMap {
    private static _pathMapInstance: PathMap | null = null;

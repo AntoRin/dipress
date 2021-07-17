@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { RequestHandler } from "express";
-import { RouteData } from "../interfaces/RouteData";
-import { isFunctionTypeOnly } from "./functionCheck";
+import { RouteData } from "../../interfaces/RouteData";
+import { isFunctionTypeOnly } from "../../../utils/functionCheck";
 
 export function handleMethodRequestEntry(
    handlers: RequestHandler | RequestHandler[],
