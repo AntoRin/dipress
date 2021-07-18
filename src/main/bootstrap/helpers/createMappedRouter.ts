@@ -3,6 +3,7 @@ import { ArgEntity } from "../../../interfaces/ArgEntity";
 import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
 import { ControllerModel, EndPoint } from "../../../interfaces/ControllerModel";
 import { RouteData } from "../../../interfaces/RouteData";
+import { validateDto } from "../../../utils/validateDto";
 
 export function createMappedRouter(controllerInstance: any): { router: Router; model: ControllerModel } {
    const router: Router = Router();
@@ -58,9 +59,14 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
             const argEntity: ArgEntity | undefined = Reflect.getMetadata("method:param", controllerInstance, propName);
 
             if (argEntity) {
-               const argTypes: ArgEntity["argModel"] = argEntity.argModel;
+               const params: ArgEntity["argModel"] = argEntity.argModel;
 
-               argTypes.forEach(param => {
+               const paramDataTypes: any[] = Reflect.getMetadata("design:paramtypes", controllerInstance, propName);
+
+               for (let index = 0; index < params.length; index++) {
+                  const param = params[index];
+                  let paramValidationSuccess: boolean = true;
+
                   switch (param.type) {
                      case "context":
                         methodArguments.push({
@@ -70,6 +76,8 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
                         });
                         break;
                      case "body":
+                        paramValidationSuccess = validateDto(req.body, paramDataTypes[index]);
+
                         methodArguments.push(param.key ? req.body[param.key] : req.body);
                         break;
                      case "param":
@@ -79,7 +87,9 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
                         methodArguments.push(param.key ? req.query[param.key] : req.query);
                         break;
                   }
-               });
+
+                  if (!paramValidationSuccess) return res.status(400).json({ status: "error", error: "invalid dto" });
+               }
             }
 
             const methodResult = controllerInstance[propName].apply(controllerInstance, methodArguments);

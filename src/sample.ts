@@ -1,6 +1,6 @@
 import { Component } from "./main/common/decorators/Component";
 import express, { Application, NextFunction, Request, Response } from "express";
-import { ErrorHandler, Factory } from "./main/common";
+import { ErrorHandler, Factory, Required } from "./main/common";
 import {
    RestController,
    OnRequestEntry,
@@ -16,6 +16,7 @@ import {
    Body,
    WildcardHandler,
 } from ".";
+import { CheckType } from "./main/common/decorators/CheckType";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -85,6 +86,18 @@ class MoreEndpoints {
    }
 }
 
+class BodyDto {
+   @Required()
+   @CheckType()
+   name!: object;
+
+   @Required()
+   @CheckType()
+   id!: any[];
+
+   method() {}
+}
+
 @ApplicationServer({
    port: 5000,
    verbose: "minimal",
@@ -139,7 +152,7 @@ export class TestDecorators {
    }
 
    @POST("/data/:id")
-   postCheck(@Query("q") query: any, @Params("id") params: any, @Body("body") reqBody: any) {
+   postCheck(@Query("q") query: any, @Body() reqBody: BodyDto, @Params("id") params: any) {
       console.log("body through reqbody", reqBody);
       console.log("params", params);
       console.log("query", query);

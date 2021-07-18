@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { constructor } from "../types";
+import { ObjectConstructor } from "../types";
 
 export interface ServerConfig {
    controllers?: ObjectConstructor<any>[];
