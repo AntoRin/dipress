@@ -1,4 +1,4 @@
-import { Component } from "./main/common/decorators/Component";
+import { Component } from "./main/common/Component";
 import express, { Application, NextFunction, Request, Response } from "express";
 import { ErrorHandler, Factory, Required } from "./main/common";
 import {
@@ -16,7 +16,7 @@ import {
    Body,
    WildcardHandler,
 } from ".";
-import { CheckType } from "./main/common/decorators/CheckType";
+import { CheckType } from "./main/common/CheckType";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -88,8 +88,8 @@ class MoreEndpoints {
 
 class BodyDto {
    @Required()
-   @CheckType()
-   name!: object;
+   @CheckType()   
+   name!: string;
 
    @Required()
    @CheckType()

@@ -1,11 +1,11 @@
-import { DtoConstraints } from "../../../interfaces/DtoConstraints";
-import { DtoKey } from "../../../interfaces/DtoKey";
+import { DtoConstraints } from "../../interfaces/DtoConstraints";
+import { DtoKey } from "../../interfaces/DtoKey";
 
-export function Required() {
+export function CheckType() {
    return function (target: any, key: string) {
       const paramConstraints: DtoKey = {
          ...((Reflect.getMetadata("validation:required", target) && Reflect.getMetadata("validation:required", target)[key]) || {}),
-         required: true,
+         checkType: true,
          name: key,
          type: Reflect.getMetadata("design:type", target, key).name,
       };

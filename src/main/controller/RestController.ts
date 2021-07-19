@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { RequestHandler } from "express";
-import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
+import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 
 export function RestController(routePrefix: string = "") {
    return function (constructor: Function) {

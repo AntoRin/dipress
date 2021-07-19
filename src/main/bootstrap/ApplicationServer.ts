@@ -1,15 +1,15 @@
 import "reflect-metadata";
 import express, { Application, RequestHandler } from "express";
-import { container } from "../../../DI/Container";
-import { PromiseHandler } from "../../../utils/PromiseHandler";
-import { pathMap } from "../../../utils/printRoutes";
-import { isFunctionTypeOnly } from "../../../utils/functionCheck";
-import { ServerConfig } from "../../../interfaces/ServerConfig";
-import { ApplicationOptions } from "../../../interfaces/ApplicationOptions";
-import { createMappedRouter } from "../helpers/createMappedRouter";
-import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
-import { ControllerModel } from "../../../interfaces/ControllerModel";
-import { ObjectConstructor } from "../../../types";
+import { container } from "../../DI/Container";
+import { PromiseHandler } from "../../utils/PromiseHandler";
+import { pathMap } from "../../utils/printRoutes";
+import { isFunctionTypeOnly } from "../../utils/functionCheck";
+import { ServerConfig } from "../../interfaces/ServerConfig";
+import { ApplicationOptions } from "../../interfaces/ApplicationOptions";
+import { createMappedRouter } from "./helpers/createMappedRouter";
+import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
+import { ControllerModel } from "../../interfaces/ControllerModel";
+import { ObjectConstructor } from "../../types";
 
 /**
  * @param ApplicationOptions: {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
