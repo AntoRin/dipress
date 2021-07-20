@@ -1,13 +1,13 @@
 import { DtoConstraints } from "../interfaces/DtoConstraints";
-import { DtoKey } from "../interfaces/DtoKey";
+import { DtoKeyConstraints } from "../interfaces/DtoKeyConstraints";
 
 export function validateDto(dto: any, dtoType: any): boolean {
-   const constrainedKeys: DtoConstraints | undefined = Reflect.getMetadata("validation:required", dtoType.prototype);
+   const constrainedKeys: DtoConstraints | undefined = Reflect.getMetadata("dto:validation", dtoType.prototype);
 
    if (!constrainedKeys) return true;
 
    const isNotValid: boolean = Object.getOwnPropertyNames(constrainedKeys).some(constraint => {
-      const key: DtoKey = constrainedKeys[constraint];
+      const key: DtoKeyConstraints = constrainedKeys[constraint];
       const value: any = dto[key.name];
 
       if (!value && key.required) return true;

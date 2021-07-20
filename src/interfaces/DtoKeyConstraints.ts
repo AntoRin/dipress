@@ -1,4 +1,4 @@
-export interface DtoKey {
+export interface DtoKeyConstraints {
    name: string;
    type: string;
    required?: boolean;

@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { RequestHandler } from "express";
-import { isFunctionTypeOnly } from "../../../utils/functionCheck";
-import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
+import { isFunctionTypeOnly } from "../../utils/functionCheck";
+import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 
-export function handleControllerRequestEntry(middlewares: RequestHandler | RequestHandler[], constructor: Function) {
+export function handleControllerRequestExit(middlewares: RequestHandler | RequestHandler[], constructor: Function) {
    if (!isFunctionTypeOnly(middlewares)) throw new Error("Only functions are to be passed in for handlers");
 
    const target: any = constructor.prototype;
@@ -13,11 +13,11 @@ export function handleControllerRequestEntry(middlewares: RequestHandler | Reque
    if (controllerMetadata) {
       const updatedMetadata: ControllerMetadata = {
          ...controllerMetadata,
-         entryHandlers: [...(Array.isArray(middlewares) ? middlewares : [middlewares])],
+         exitHandlers: [...(Array.isArray(middlewares) ? middlewares : [middlewares])],
       };
 
       Reflect.defineMetadata("controller:metadata", updatedMetadata, target);
    } else {
-      Reflect.defineMetadata("controller-middleware", ([] as RequestHandler[]).concat(middlewares), target);
+      Reflect.defineMetadata("post-controller-middleware", ([] as RequestHandler[]).concat(middlewares), target);
    }
 }

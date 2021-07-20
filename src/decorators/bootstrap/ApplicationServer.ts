@@ -6,7 +6,7 @@ import { pathMap } from "../../utils/printRoutes";
 import { isFunctionTypeOnly } from "../../utils/functionCheck";
 import { ServerConfig } from "../../interfaces/ServerConfig";
 import { ApplicationOptions } from "../../interfaces/ApplicationOptions";
-import { createMappedRouter } from "./helpers/createMappedRouter";
+import { createMappedRouter } from "../helpers/createMappedRouter";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 import { ControllerModel } from "../../interfaces/ControllerModel";
 import { ObjectConstructor } from "../../types";

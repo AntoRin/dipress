@@ -1,22 +1,25 @@
-import { Component } from "./main/common/Component";
 import express, { Application, NextFunction, Request, Response } from "express";
-import { ErrorHandler, Factory, Required } from "./main/common";
 import {
-   RestController,
-   OnRequestEntry,
-   GET,
    ApplicationServer,
-   OnRequestExit,
+   Body,
    Context,
-   Query,
+   ErrorHandler,
+   Factory,
+   GET,
+   OnRequestEntry,
+   OnRequestExit,
    OnServerInit,
    OnServerStartup,
-   POST,
    Params,
-   Body,
+   POST,
+   Query,
+   Required,
+   RestController,
+   Strict,
    WildcardHandler,
 } from ".";
-import { CheckType } from "./main/common/CheckType";
+import { Component } from "./decorators/common/Component";
+import { MinLength } from "./decorators/validation/MinLength";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
    console.log("this is the man in the middle");
@@ -88,11 +91,12 @@ class MoreEndpoints {
 
 class BodyDto {
    @Required()
-   @CheckType()   
+   @Strict()
+   @MinLength(5)
    name!: string;
 
    @Required()
-   @CheckType()
+   @Strict()
    id!: any[];
 
    method() {}

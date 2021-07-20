@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { buildMethodDecorator } from "./helpers/buildMethodDecorator";
+import { buildMethodDecorator } from "../factories/buildMethodDecorator";
 
 /**
  *

@@ -1,5 +1,5 @@
-import { DtoKey } from "./DtoKey";
+import { DtoKeyConstraints } from "./DtoKeyConstraints";
 
 export interface DtoConstraints {
-   [index: string]: DtoKey;
+   [index: string]: DtoKeyConstraints;
 }

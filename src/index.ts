@@ -1,3 +1,2 @@
-export * from "./main";
-export * from "./types";
+export * from "./decorators";
 export * from "./DI/Container";

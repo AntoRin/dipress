@@ -1,5 +1,5 @@
-import { ArgEntity } from "../../../interfaces/ArgEntity";
-import { HandlerCtxField } from "../../../index";
+import { ArgEntity } from "../../interfaces/ArgEntity";
+import { HandlerCtxField } from "../../types";
 
 export function buildParamDecorator(decoratorType: HandlerCtxField, objectKey?: string) {
    return function (target: Object, key: string, index: number) {
