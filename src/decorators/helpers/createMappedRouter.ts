@@ -20,6 +20,8 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       Object.getPrototypeOf(controllerInstance)
    );
 
+   let errorHandler: RequestHandler | null = null;
+
    if (controllerMetadata.entryHandlers && controllerMetadata.entryHandlers.length > 0) {
       router.use(controllerMetadata.entryHandlers);
       controllerInfo.entryMiddleware = [
@@ -30,6 +32,11 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
 
    for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(controllerInstance))) {
       if (typeof controllerInstance[propName] !== "function" || propName === "constructor") continue;
+
+      if (Reflect.getMetadata("error-handler", controllerInstance, propName)) {
+         errorHandler = controllerInstance[propName].bind(controllerInstance);
+         continue;
+      }
 
       const metaData: RouteData | undefined = Reflect.getMetadata("route", controllerInstance, propName);
 
@@ -53,7 +60,7 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       if (Reflect.getMetadata("isFactory", controllerInstance, propName)) {
          endPointHandler = ([] as RequestHandler[]).concat(controllerInstance[propName].apply(controllerInstance, []));
       } else {
-         endPointHandler = function (req: Request, res: Response, next: NextFunction) {
+         endPointHandler = async function (req: Request, res: Response, next: NextFunction) {
             let methodArguments: any[] = [];
 
             const argEntity: ArgEntity | undefined = Reflect.getMetadata("method:param", controllerInstance, propName);
@@ -75,6 +82,15 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
                            next,
                         });
                         break;
+                     case "req":
+                        methodArguments.push(req);
+                        break;
+                     case "res":
+                        methodArguments.push(res);
+                        break;
+                     case "next":
+                        methodArguments.push(next);
+                        break;
                      case "body":
                         paramValidationSuccess = validateDto(req.body, paramDataTypes[index]);
 
@@ -92,7 +108,15 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
                }
             }
 
-            const methodResult = controllerInstance[propName].apply(controllerInstance, methodArguments);
+            let methodResult: any;
+
+            try {
+               methodResult = controllerInstance[propName].apply(controllerInstance, methodArguments);
+
+               if (methodResult instanceof Promise) await methodResult;
+            } catch (error) {
+               return next(error);
+            }
 
             if (!res.headersSent)
                switch (typeof methodResult) {
@@ -146,6 +170,8 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
          ...controllerMetadata.exitHandlers.map(handler => handler.name),
       ];
    }
+
+   if (errorHandler) router.use(errorHandler);
 
    return {
       router,

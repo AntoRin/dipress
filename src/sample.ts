@@ -19,6 +19,8 @@ import {
    WildcardHandler,
 } from ".";
 import { Component } from "./decorators/common/Component";
+import { Req } from "./decorators/handler-param/Req";
+import { Res } from "./decorators/handler-param/Res";
 import { MinLength } from "./decorators/validation/MinLength";
 
 function midMan(_: Request, __: Response, next: NextFunction) {
@@ -75,17 +77,32 @@ class MoreEndpoints {
    public constructor(private _service: Service, private _anotherService: AnotherService) {}
 
    @GET("/v2")
-   index() {
-      return {
-         status: "super okay",
-         data: "no data for you",
-      };
+   async index(@Res() res: Response, @Req() req: Request) {
+      // await new Promise((resolve, reject) => {
+      //    setTimeout(() => {
+      //       reject(new Error("unwanted error"));
+      //    }, 1000);
+      // });
+
+      console.log(req.url);
+      return res.send("Res decorator");
+
+      // return {
+      //    status: "super okay",
+      //    data: "no data for you",
+      // };
    }
 
    @GET("/private")
    sayHello(req: Request, res: Response) {
       // res.send(`${this._service.serviceMethod()} ${this._anotherService.anotherServiceMethod()}`);
       return this._service.serviceMethod() + " " + this._anotherService.anotherServiceMethod();
+   }
+
+   @ErrorHandler
+   error(error: any, req: Request, res: Response, next: NextFunction) {
+      console.log("controller-specific error handler");
+      res.send("controller-specific error caught");
    }
 }
 

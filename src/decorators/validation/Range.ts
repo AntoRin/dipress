@@ -1,17 +1,11 @@
 import { DtoConstraints } from "../../interfaces/DtoConstraints";
 import { DtoKeyConstraints } from "../../interfaces/DtoKeyConstraints";
 
-export function MinLength(constraint: number) {
+export function Range(start: number, end: number) {
    return function (target: any, key: string) {
-      const prevDtoConstraints: DtoConstraints | undefined = Reflect.getMetadata("dto:validation", target);
-
-      const prevArgConstraints: DtoKeyConstraints | undefined = prevDtoConstraints ? prevDtoConstraints[key] : undefined;
-
-      if (prevArgConstraints?.maxLength) return;
-
       const paramConstraints: DtoKeyConstraints = {
-         ...(prevArgConstraints || {}),
-         minLength: constraint,
+         ...((Reflect.getMetadata("dto:validation", target) && Reflect.getMetadata("dto:validation", target)[key]) || {}),
+         range: [start, end],
          name: key,
          type: Reflect.getMetadata("design:type", target, key).name,
       };

@@ -25,6 +25,10 @@ export function validateDto(dto: any, dtoType: any): boolean {
          if (key.minLength && (value as string | any[]).length < key.minLength) {
             return true;
          }
+
+         if (key.type === "number" && key.range) {
+            if (value < key.range[0] || value > key.range[1]) return true;
+         }
       }
 
       return false;

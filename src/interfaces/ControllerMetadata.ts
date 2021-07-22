@@ -4,4 +4,5 @@ export interface ControllerMetadata {
    basePath: string;
    entryHandlers?: RequestHandler[];
    exitHandlers?: RequestHandler[];
+   errorHandlerName?: RequestHandler;
 }
