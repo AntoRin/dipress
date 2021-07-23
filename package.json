@@ -1,6 +1,6 @@
 {
    "name": "dipress",
-   "version": "1.0.2",
+   "version": "1.0.4",
    "description": "A TypeScript decorator library built on top of express.js",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
