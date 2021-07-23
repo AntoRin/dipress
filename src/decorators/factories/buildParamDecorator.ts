@@ -4,9 +4,8 @@ import { HandlerCtxField } from "../../types";
 export function buildParamDecorator(decoratorType: HandlerCtxField, objectKey?: string) {
    return function (target: Object, key: string, index: number) {
       const requiredArg: ArgEntity = {
-         index,
          argModel: [
-            { type: decoratorType, key: objectKey },
+            { type: decoratorType, key: objectKey, index },
             ...(Reflect.getMetadata("method:param", target, key)?.argModel || ([] as ArgEntity["argModel"])),
          ],
       };

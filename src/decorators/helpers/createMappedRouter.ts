@@ -1,9 +1,9 @@
-import { NextFunction, Request, RequestHandler, Response, Router } from "express";
-import { ArgEntity } from "../../interfaces/ArgEntity";
+import { ErrorRequestHandler, RequestHandler, Router } from "express";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 import { ControllerModel, EndPoint } from "../../interfaces/ControllerModel";
 import { RouteData } from "../../interfaces/RouteData";
-import { validateDto } from "../../utils/validateDto";
+import { wrapErrorHandler } from "./errorHandlerWrapper";
+import { wrapHandler } from "./handlerWrapper";
 
 export function createMappedRouter(controllerInstance: any): { router: Router; model: ControllerModel } {
    const router: Router = Router();
@@ -20,8 +20,6 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       Object.getPrototypeOf(controllerInstance)
    );
 
-   let errorHandler: RequestHandler | null = null;
-
    if (controllerMetadata.entryHandlers && controllerMetadata.entryHandlers.length > 0) {
       router.use(controllerMetadata.entryHandlers);
       controllerInfo.entryMiddleware = [
@@ -30,11 +28,19 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       ];
    }
 
+   let errorHandler: ErrorRequestHandler | null = null;
+
    for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(controllerInstance))) {
       if (typeof controllerInstance[propName] !== "function" || propName === "constructor") continue;
 
       if (Reflect.getMetadata("error-handler", controllerInstance, propName)) {
-         errorHandler = controllerInstance[propName].bind(controllerInstance);
+         if (!errorHandler && !Reflect.getMetadata("errorHandler:active", controllerInstance)) {
+            errorHandler = Reflect.getMetadata("isFactory", controllerInstance, propName)
+               ? (controllerInstance[propName] as Function).apply(controllerInstance, [])
+               : wrapErrorHandler(propName, controllerInstance);
+         }
+         Reflect.defineMetadata("errorHandler:active", true, controllerInstance);
+
          continue;
       }
 
@@ -45,7 +51,7 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       let thisEndpoint: EndPoint = {
          path: metaData.endPoint,
          handlerName: propName,
-         method: "GET",
+         method: "get",
          entryMiddleware: [],
          exitMiddleware: [],
       };
@@ -60,80 +66,7 @@ export function createMappedRouter(controllerInstance: any): { router: Router; m
       if (Reflect.getMetadata("isFactory", controllerInstance, propName)) {
          endPointHandler = ([] as RequestHandler[]).concat(controllerInstance[propName].apply(controllerInstance, []));
       } else {
-         endPointHandler = async function (req: Request, res: Response, next: NextFunction) {
-            let methodArguments: any[] = [];
-
-            const argEntity: ArgEntity | undefined = Reflect.getMetadata("method:param", controllerInstance, propName);
-
-            if (argEntity) {
-               const params: ArgEntity["argModel"] = argEntity.argModel;
-
-               const paramDataTypes: any[] = Reflect.getMetadata("design:paramtypes", controllerInstance, propName);
-
-               for (let index = 0; index < params.length; index++) {
-                  const param = params[index];
-                  let paramValidationSuccess: boolean = true;
-
-                  switch (param.type) {
-                     case "context":
-                        methodArguments.push({
-                           req,
-                           res,
-                           next,
-                        });
-                        break;
-                     case "req":
-                        methodArguments.push(req);
-                        break;
-                     case "res":
-                        methodArguments.push(res);
-                        break;
-                     case "next":
-                        methodArguments.push(next);
-                        break;
-                     case "body":
-                        paramValidationSuccess = validateDto(req.body, paramDataTypes[index]);
-
-                        methodArguments.push(param.key ? req.body[param.key] : req.body);
-                        break;
-                     case "param":
-                        methodArguments.push(param.key ? req.params[param.key] : req.params);
-                        break;
-                     case "query":
-                        methodArguments.push(param.key ? req.query[param.key] : req.query);
-                        break;
-                  }
-
-                  if (!paramValidationSuccess) return res.status(400).json({ status: "error", error: "invalid dto" });
-               }
-            }
-
-            let methodResult: any;
-
-            try {
-               methodResult = controllerInstance[propName].apply(controllerInstance, methodArguments);
-
-               if (methodResult instanceof Promise) await methodResult;
-            } catch (error) {
-               return next(error);
-            }
-
-            if (!res.headersSent)
-               switch (typeof methodResult) {
-                  case "string":
-                     return res.send(methodResult);
-                  case "object":
-                     return res.json(methodResult);
-                  case "bigint":
-                  case "boolean":
-                  case "number":
-                     return res.send(methodResult.toString());
-                  case "undefined":
-                     break;
-                  default:
-                     return res.end();
-               }
-         };
+         endPointHandler = wrapHandler(propName, controllerInstance);
       }
 
       switch (metaData.method) {

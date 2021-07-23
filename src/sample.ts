@@ -74,23 +74,22 @@ class AnotherService {
 @RestController("/")
 @OnRequestEntry(secondMidMan)
 class MoreEndpoints {
+   private readonly _check: string = "hello world";
+
    public constructor(private _service: Service, private _anotherService: AnotherService) {}
 
    @GET("/v2")
    async index(@Res() res: Response, @Req() req: Request) {
-      // await new Promise((resolve, reject) => {
-      //    setTimeout(() => {
-      //       reject(new Error("unwanted error"));
-      //    }, 1000);
-      // });
+      await new Promise((resolve, reject) => {
+         setTimeout(() => {
+            reject(new Error("unwanted error"));
+         }, 1000);
+      });
 
-      console.log(req.url);
-      return res.send("Res decorator");
-
-      // return {
-      //    status: "super okay",
-      //    data: "no data for you",
-      // };
+      return {
+         status: "super okay",
+         data: "no data for you",
+      };
    }
 
    @GET("/private")
@@ -100,9 +99,9 @@ class MoreEndpoints {
    }
 
    @ErrorHandler
-   error(error: any, req: Request, res: Response, next: NextFunction) {
-      console.log("controller-specific error handler");
-      res.send("controller-specific error caught");
+   error(@Context() ctx: any, @Res() res: Response) {
+      console.log("error provided by dec", ctx.error, this._check);
+      res.send("error provided by dec");
    }
 }
 
@@ -187,7 +186,7 @@ export class TestDecorators {
    }
 
    @WildcardHandler
-   catchAll(_: Request, res: Response) {
-      res.send("Not found");
+   catchAll() {
+      return "Not found lol";
    }
 }

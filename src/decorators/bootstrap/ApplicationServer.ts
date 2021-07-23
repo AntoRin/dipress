@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import express, { Application, RequestHandler } from "express";
+import express, { Application, ErrorRequestHandler, RequestHandler } from "express";
 import { container } from "../../DI/Container";
 import { PromiseHandler } from "../../utils/PromiseHandler";
 import { pathMap } from "../../utils/printRoutes";
@@ -10,6 +10,8 @@ import { createMappedRouter } from "../helpers/createMappedRouter";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 import { ControllerModel } from "../../interfaces/ControllerModel";
 import { ObjectConstructor } from "../../types";
+import { wrapErrorHandler } from "../helpers/errorHandlerWrapper";
+import { wrapHandler } from "../helpers/handlerWrapper";
 
 /**
  * @param ApplicationOptions: {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
@@ -38,11 +40,15 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
             const componentResult: any = applicationInstance[propName](app);
 
             if (componentResult instanceof Promise) promiseHandler.addNewPromise(componentResult);
-         } else if (Reflect.getMetadata("error-handler", applicationInstance, propName) && !appConfig.errorHandler) {
-            const errorHandler: any[] = ([] as any[]).concat(
+         } else if (
+            Reflect.getMetadata("error-handler", applicationInstance, propName) &&
+            !appConfig.errorHandler &&
+            !Reflect.getMetadata("errorHandler:active", applicationInstance)
+         ) {
+            const errorHandler: ErrorRequestHandler[] = ([] as ErrorRequestHandler[]).concat(
                Reflect.getMetadata("isFactory", applicationInstance, propName)
-                  ? applicationInstance[propName]()
-                  : applicationInstance[propName]
+                  ? (applicationInstance[propName] as Function).apply(applicationInstance, [])
+                  : wrapErrorHandler(propName, applicationInstance)
             );
 
             if (!isFunctionTypeOnly(errorHandler)) throw new Error("Invalid type: expected function");
@@ -51,11 +57,13 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
                ...appConfig,
                errorHandler: errorHandler[0],
             };
+
+            Reflect.defineMetadata("errorHandler:active", true, applicationInstance);
          } else if (Reflect.getMetadata("application-catch-all", applicationInstance, propName) && !appConfig.catchAll) {
-            const catchAll: any = ([] as any[]).concat(
+            const catchAll: RequestHandler[] = ([] as RequestHandler[]).concat(
                Reflect.getMetadata("isFactory", applicationInstance, propName)
-                  ? applicationInstance[propName]()
-                  : applicationInstance[propName]
+                  ? (applicationInstance[propName] as Function).apply(applicationInstance, [])
+                  : wrapHandler(propName, applicationInstance)
             );
 
             if (!isFunctionTypeOnly(catchAll)) throw new Error("Invalid type: expected functions");
@@ -98,7 +106,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
 
          catchAll && app.use("*", catchAll);
 
-         const errorHandler: RequestHandler | RequestHandler[] | undefined = appConfig.errorHandler;
+         const errorHandler: ErrorRequestHandler | ErrorRequestHandler[] | undefined = appConfig.errorHandler;
 
          errorHandler && app.use(errorHandler);
 
