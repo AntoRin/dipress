@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { RequestHandler } from "express";
 import { handleMethodRequestEntry } from "../helpers/methodEntry";
 import { handleControllerRequestEntry } from "../helpers/controllerEntry";

@@ -3,7 +3,7 @@ import { ArgEntity } from "../../interfaces/ArgEntity";
 import { validateDto } from "../../utils/validateDto";
 
 export function wrapErrorHandler(propName: string, controllerInstance: any) {
-   return async function (error: any, req: Request, res: Response, next: NextFunction) {
+   return function (error: any, req: Request, res: Response, next: NextFunction) {
       let methodArguments: any[] = [];
 
       const argEntity: ArgEntity | undefined = Reflect.getMetadata("method:param", controllerInstance, propName);
@@ -60,25 +60,47 @@ export function wrapErrorHandler(propName: string, controllerInstance: any) {
       try {
          methodResult = controllerInstance[propName].apply(controllerInstance, methodArguments);
 
-         if (methodResult instanceof Promise) await methodResult;
+         if (methodResult instanceof Promise) {
+            methodResult
+               .then((methodResult: any) => {
+                  if (!res.headersSent)
+                     switch (typeof methodResult) {
+                        case "string":
+                           return res.send(methodResult);
+                        case "object":
+                           return res.json(methodResult);
+                        case "bigint":
+                        case "boolean":
+                        case "number":
+                           return res.send(methodResult.toString());
+                        case "undefined":
+                           break;
+                        default:
+                           return res.end();
+                     }
+               })
+               .catch((error: any) => {
+                  return next(error);
+               });
+         } else {
+            if (!res.headersSent)
+               switch (typeof methodResult) {
+                  case "string":
+                     return res.send(methodResult);
+                  case "object":
+                     return res.json(methodResult);
+                  case "bigint":
+                  case "boolean":
+                  case "number":
+                     return res.send(methodResult.toString());
+                  case "undefined":
+                     break;
+                  default:
+                     return res.end();
+               }
+         }
       } catch (error) {
          return next(error);
       }
-
-      if (!res.headersSent)
-         switch (typeof methodResult) {
-            case "string":
-               return res.send(methodResult);
-            case "object":
-               return res.json(methodResult);
-            case "bigint":
-            case "boolean":
-            case "number":
-               return res.send(methodResult.toString());
-            case "undefined":
-               break;
-            default:
-               return res.end();
-         }
    };
 }

@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { ObjectConstructor } from "../types";
 
 class Container {

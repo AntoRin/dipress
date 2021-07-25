@@ -1,18 +1,18 @@
-# Welcome to express-frills 🎃
+# Welcome to dipress🎃
 
-[![Version](https://img.shields.io/npm/v/express-frills.svg)](https://www.npmjs.com/package/express-frills)
-[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/AntoRin/express-frills#readme)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/AntoRin/express-frills/graphs/commit-activity)
-[![License: MIT](https://img.shields.io/github/license/AntoRin/express-frills)](https://github.com/AntoRin/express-frills/blob/master/LICENSE)
+[![Version](https://img.shields.io/npm/v/dipress.svg)](https://www.npmjs.com/package/dipress)
+[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/AntoRin/dipress#readme)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/AntoRin/dipress/graphs/commit-activity)
+[![License: MIT](https://img.shields.io/github/license/AntoRin/dipress)](https://github.com/AntoRin/dipress/blob/master/LICENSE)
 
 > A TypeScript decorator library built on top of express.js
 
-### 🏠 [Homepage](https://github.com/AntoRin/express-frills)
+### 🏠 [Homepage](https://github.com/AntoRin/dipress)
 
 ## Install
 
 ```sh
-npm install express-frills
+npm install dipress
 ```
 
 ## Usage
@@ -89,7 +89,7 @@ Give a ⭐️ if this project helped you!
 
 Copyright © 2021 [AntoRin](https://github.com/AntoRin).
 
-This project is [MIT](https://github.com/AntoRin/express-frills/blob/master/LICENSE) licensed.
+This project is [MIT](https://github.com/AntoRin/dipress/blob/master/LICENSE) licensed.
 
 ---
 

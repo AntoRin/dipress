@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import "reflect-metadata";
 import { handleControllerRequestExit } from "../helpers/controllerExit";
 import { handleMethodRequestExit } from "../helpers/methodExit";
 

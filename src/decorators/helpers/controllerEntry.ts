@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { RequestHandler } from "express";
 import { isFunctionTypeOnly } from "../../utils/functionCheck";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";

@@ -18,6 +18,7 @@ import {
    Strict,
    WildcardHandler,
 } from ".";
+import { Err } from "./decorators";
 import { Component } from "./decorators/common/Component";
 import { Req } from "./decorators/handler-param/Req";
 import { Res } from "./decorators/handler-param/Res";
@@ -82,8 +83,8 @@ class MoreEndpoints {
    async index(@Res() res: Response, @Req() req: Request) {
       await new Promise((resolve, reject) => {
          setTimeout(() => {
-            reject(new Error("unwanted error"));
-         }, 1000);
+            reject("Hola");
+         }, 5000);
       });
 
       return {
@@ -101,7 +102,10 @@ class MoreEndpoints {
    @ErrorHandler
    error(@Context() ctx: any, @Res() res: Response) {
       console.log("error provided by dec", ctx.error, this._check);
-      res.send("error provided by dec");
+      res.json({
+         status: "error",
+         error: "error provided by dec",
+      });
    }
 }
 
@@ -139,7 +143,6 @@ export class TestDecorators {
    @OnRequestExit(postHandler)
    method2(@Context() ctx: any, @Query("aboutwhat") q: string) {
       console.log(q);
-      ctx.next();
       return ["ada"];
    }
 
@@ -181,7 +184,7 @@ export class TestDecorators {
    }
 
    @ErrorHandler
-   errorHandler(error: any, _: Request, res: Response, __: NextFunction) {
+   errorHandler(@Res() res: Response, @Err() error: any) {
       res.json({ status: "error", error: error.message });
    }
 

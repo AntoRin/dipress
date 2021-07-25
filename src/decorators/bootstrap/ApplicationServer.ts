@@ -1,17 +1,15 @@
-import "reflect-metadata";
 import express, { Application, ErrorRequestHandler, RequestHandler } from "express";
 import { container } from "../../DI/Container";
-import { PromiseHandler } from "../../utils/PromiseHandler";
-import { pathMap } from "../../utils/printRoutes";
-import { isFunctionTypeOnly } from "../../utils/functionCheck";
-import { ServerConfig } from "../../interfaces/ServerConfig";
 import { ApplicationOptions } from "../../interfaces/ApplicationOptions";
-import { createMappedRouter } from "../helpers/createMappedRouter";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 import { ControllerModel } from "../../interfaces/ControllerModel";
+import { ServerConfig } from "../../interfaces/ServerConfig";
+import { responseContext } from "../../router/ResponseContext";
+import { RouterContext } from "../../router/RouterContext";
 import { ObjectConstructor } from "../../types";
-import { wrapErrorHandler } from "../helpers/errorHandlerWrapper";
-import { wrapHandler } from "../helpers/handlerWrapper";
+import { isFunctionTypeOnly } from "../../utils/functionCheck";
+import { pathMap } from "../../utils/printRoutes";
+import { PromiseHandler } from "../../utils/PromiseHandler";
 
 /**
  * @param ApplicationOptions: {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
@@ -48,7 +46,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
             const errorHandler: ErrorRequestHandler[] = ([] as ErrorRequestHandler[]).concat(
                Reflect.getMetadata("isFactory", applicationInstance, propName)
                   ? (applicationInstance[propName] as Function).apply(applicationInstance, [])
-                  : wrapErrorHandler(propName, applicationInstance)
+                  : responseContext.createErrorResponseHandler(propName, applicationInstance)
             );
 
             if (!isFunctionTypeOnly(errorHandler)) throw new Error("Invalid type: expected function");
@@ -63,7 +61,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
             const catchAll: RequestHandler[] = ([] as RequestHandler[]).concat(
                Reflect.getMetadata("isFactory", applicationInstance, propName)
                   ? (applicationInstance[propName] as Function).apply(applicationInstance, [])
-                  : wrapHandler(propName, applicationInstance)
+                  : responseContext.createResponseHandler(propName, applicationInstance)
             );
 
             if (!isFunctionTypeOnly(catchAll)) throw new Error("Invalid type: expected functions");
@@ -92,8 +90,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
 
          for (const controller of appControllers) {
             const controllerInstance = container.resolveInstance(controller);
-
-            const { router, model } = createMappedRouter(controllerInstance);
+            const { router, model } = new RouterContext().createMappedRouter(controllerInstance);
 
             printableModel.push(model);
 
