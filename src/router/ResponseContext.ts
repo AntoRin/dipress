@@ -146,7 +146,6 @@ class ResponseContext {
                break;
             case "body":
                paramValidationSuccess = validateDto(req.body, paramDataTypes[index]);
-
                args.push(param.key ? req.body[param.key] : req.body);
                break;
             case "param":

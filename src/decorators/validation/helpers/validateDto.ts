@@ -1,33 +1,34 @@
 import { DtoConstraints } from "../../../interfaces/DtoConstraints";
 import { DtoKeyConstraints } from "../../../interfaces/DtoKeyConstraints";
+import { ObjectConstructor } from "../../../types";
 
-export function validateDto(dto: any, dtoType: any): boolean {
+export function validateDto(dto: any, dtoType: ObjectConstructor<any>): boolean {
    const constrainedKeys: DtoConstraints | undefined = Reflect.getMetadata("dto:validation", dtoType.prototype);
 
    if (!constrainedKeys) return true;
 
-   const isNotValid: boolean = Object.getOwnPropertyNames(constrainedKeys).some(constraint => {
-      const key: DtoKeyConstraints = constrainedKeys[constraint];
-      const value: any = dto[key.name];
+   const isNotValid: boolean = Object.getOwnPropertyNames(constrainedKeys).some((constrainedKeyName: string) => {
+      const keyConstraints: DtoKeyConstraints = constrainedKeys[constrainedKeyName];
+      const value: unknown = dto[keyConstraints.name];
 
-      if (!value && key.required) return true;
+      if (!value && keyConstraints.required) return true;
       else if (value) {
          const dtoTypeMod: string = typeof value === "object" ? (Array.isArray(value) ? "array" : typeof value) : typeof value;
 
-         if (key.checkType && dtoTypeMod !== key.type.toLowerCase()) {
+         if (keyConstraints.checkType && dtoTypeMod !== keyConstraints.type.toLowerCase()) {
             return true;
          }
 
-         if (key.maxLength && (value as string | any[]).length > key.maxLength) {
+         if (keyConstraints.maxLength && (value as string | any[]).length > keyConstraints.maxLength) {
             return true;
          }
 
-         if (key.minLength && (value as string | any[]).length < key.minLength) {
+         if (keyConstraints.minLength && (value as string | any[]).length < keyConstraints.minLength) {
             return true;
          }
 
-         if (key.type === "number" && key.range) {
-            if (value < key.range[0] || value > key.range[1]) return true;
+         if (keyConstraints.type === "number" && typeof value === "number" && keyConstraints.range) {
+            if (value < keyConstraints.range[0] || value > keyConstraints.range[1]) return true;
          }
       }
 

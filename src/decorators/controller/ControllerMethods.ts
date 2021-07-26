@@ -35,3 +35,12 @@ export function PUT(route: string) {
 export function DELETE(route: string) {
    return buildMethodDecorator("delete", route);
 }
+
+/**
+ *
+ * @param route: string
+ * * Use the decorated method as a handler for ALL requests to the route.
+ */
+export function ALL(route: string) {
+   return buildMethodDecorator("all", route);
+}

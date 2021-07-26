@@ -90,7 +90,7 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
 
          for (const controller of appControllers) {
             const controllerInstance = container.resolveInstance(controller);
-            const { router, model } = new RouterContext().createMappedRouter(controllerInstance);
+            const { router, model } = new RouterContext(controllerInstance).createMappedRouter();
 
             printableModel.push(model);
 
