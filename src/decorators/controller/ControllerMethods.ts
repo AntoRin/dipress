@@ -1,4 +1,4 @@
-import { buildMethodDecorator } from "../factories/buildMethodDecorator";
+import { buildMethodDecorator } from "./factories/buildMethodDecorator";
 
 /**
  *

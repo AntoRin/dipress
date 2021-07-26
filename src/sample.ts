@@ -83,7 +83,7 @@ class MoreEndpoints {
    async index(@Res() res: Response, @Req() req: Request) {
       await new Promise((resolve, reject) => {
          setTimeout(() => {
-            reject("Hola");
+            resolve("Hola");
          }, 5000);
       });
 

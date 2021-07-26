@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ArgEntity } from "../interfaces/ArgEntity";
-import { validateDto } from "../utils/validateDto";
+import { validateDto } from "../decorators/validation/helpers/validateDto";
 
 class ResponseContext {
    private static _Instance: ResponseContext | null = null;

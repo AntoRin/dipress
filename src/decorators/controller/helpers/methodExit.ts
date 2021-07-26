@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
-import { RouteData } from "../../interfaces/RouteData";
-import { isFunctionTypeOnly } from "../../utils/functionCheck";
+import { RouteData } from "../../../interfaces/RouteData";
+import { isFunctionTypeOnly } from "../../../utils/functionCheck";
 
 export function handleMethodRequestExit(
    handlers: RequestHandler | Array<RequestHandler>,

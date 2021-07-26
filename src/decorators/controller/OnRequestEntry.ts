@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
-import { handleMethodRequestEntry } from "../helpers/methodEntry";
-import { handleControllerRequestEntry } from "../helpers/controllerEntry";
+import { handleMethodRequestEntry } from "./helpers/methodEntry";
+import { handleControllerRequestEntry } from "./helpers/controllerEntry";
 
 export function OnRequestEntry(handlers: RequestHandler | Array<RequestHandler>) {
    return function (decoratee: Function | Object, key?: string, descriptor?: PropertyDescriptor) {

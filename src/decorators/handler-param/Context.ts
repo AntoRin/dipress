@@ -1,4 +1,4 @@
-import { buildParamDecorator } from "../factories/buildParamDecorator";
+import { buildParamDecorator } from "./factories/buildParamDecorator";
 
 export function Context() {
    return buildParamDecorator("context");

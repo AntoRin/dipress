@@ -1,5 +1,5 @@
-import { DtoConstraints } from "../interfaces/DtoConstraints";
-import { DtoKeyConstraints } from "../interfaces/DtoKeyConstraints";
+import { DtoConstraints } from "../../../interfaces/DtoConstraints";
+import { DtoKeyConstraints } from "../../../interfaces/DtoKeyConstraints";
 
 export function validateDto(dto: any, dtoType: any): boolean {
    const constrainedKeys: DtoConstraints | undefined = Reflect.getMetadata("dto:validation", dtoType.prototype);

@@ -1,4 +1,4 @@
-import { RouteData } from "../../interfaces/RouteData";
+import { RouteData } from "../../../interfaces/RouteData";
 
 export function buildMethodDecorator(methodType: string, route: string) {
    return function (target: Object, key: string, _: PropertyDescriptor): void {

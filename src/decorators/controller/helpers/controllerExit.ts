@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
-import { isFunctionTypeOnly } from "../../utils/functionCheck";
-import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
+import { isFunctionTypeOnly } from "../../../utils/functionCheck";
+import { ControllerMetadata } from "../../../interfaces/ControllerMetadata";
 
 export function handleControllerRequestExit(middlewares: RequestHandler | RequestHandler[], constructor: Function) {
    if (!isFunctionTypeOnly(middlewares)) throw new Error("Only functions are to be passed in for handlers");
