@@ -97,7 +97,7 @@ export class RouterContext {
                break;
             case "all":
                this.router.all(metaData.endPoint, endPointHandler);
-               thisEndpoint.method = "DELETE";
+               thisEndpoint.method = "ALL";
                break;
          }
 
