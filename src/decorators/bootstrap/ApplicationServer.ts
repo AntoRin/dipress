@@ -117,7 +117,11 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
             console.log(`Server listening on port ${port}`);
             if (appConfig.afterStartupComponent) {
                const afterEffects = appConfig.afterStartupComponent(server);
-               if (afterEffects instanceof Promise) await afterEffects;
+               if (afterEffects instanceof Promise)
+                  await afterEffects.catch(error => {
+                     console.log("An error occured in the start-up function", error);
+                     process.exit(1);
+                  });
             }
          });
       });
