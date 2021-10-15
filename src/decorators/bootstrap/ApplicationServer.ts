@@ -1,5 +1,6 @@
 import express, { Application, ErrorRequestHandler, RequestHandler } from "express";
 import { container } from "../../DI/Container";
+import { ServerGlobalsContainer } from "../../DI/ServerGlobalsContainer";
 import { ApplicationOptions } from "../../interfaces/ApplicationOptions";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 import { ControllerModel } from "../../interfaces/ControllerModel";
@@ -28,16 +29,23 @@ export function ApplicationServer({ controllers = [], port = 5000, appHandler, v
 
       appConfig.controllers = controllers;
 
-      const promiseHandler: PromiseHandler = new PromiseHandler();
+      const promiseHandler: PromiseHandler = new PromiseHandler(ServerGlobalsContainer.ServerGlobal);
+
       const applicationInstance = container.resolveInstance(Constructor);
 
       for (const propName of Object.getOwnPropertyNames(Object.getPrototypeOf(applicationInstance))) {
          if (typeof applicationInstance[propName] !== "function") continue;
 
-         if (Reflect.getMetadata("startup-component", applicationInstance, propName)) {
+         if (!!Reflect.getMetadata("startup-component", applicationInstance, propName)) {
+            const globalValKeyName: string = Reflect.getMetadata("startup-component", applicationInstance, propName);
+
             const componentResult: any = applicationInstance[propName](app);
 
-            if (componentResult instanceof Promise) promiseHandler.addNewPromise(componentResult);
+            if (componentResult instanceof Promise) {
+               promiseHandler.addNewPromise(componentResult, globalValKeyName);
+            } else {
+               ServerGlobalsContainer.ServerGlobal[globalValKeyName] = componentResult;
+            }
          } else if (
             Reflect.getMetadata("error-handler", applicationInstance, propName) &&
             !appConfig.errorHandler &&

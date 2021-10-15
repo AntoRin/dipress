@@ -17,6 +17,7 @@ import {
    RestController,
    Strict,
    WildcardHandler,
+   InjectGlobal,
 } from ".";
 import { Err } from "./decorators";
 import { Component } from "./decorators/common/Component";
@@ -76,15 +77,20 @@ class AnotherService {
 @OnRequestEntry(secondMidMan)
 class MoreEndpoints {
    private readonly _check: string = "hello world";
+   @InjectGlobal("LOL") LOL: string | undefined;
+   @InjectGlobal("WDYM") wdym: string | undefined;
 
    public constructor(private _service: Service, private _anotherService: AnotherService) {}
 
    @GET("/v2")
    async index(@Res() res: Response, @Req() req: Request) {
+      console.log(this.LOL);
+      console.log(this.wdym);
+
       await new Promise((resolve, reject) => {
          setTimeout(() => {
             resolve("Hola");
-         }, 5000);
+         });
       });
 
       return {
@@ -146,13 +152,23 @@ export class TestDecorators {
       return ["ada"];
    }
 
-   @OnServerInit
+   @OnServerInit("LOL")
    async method3(app: Application) {
       console.log("DB connection, perhaps...");
       app.use(express.json());
-      await new Promise((resolve, _) => setTimeout(() => resolve("yes...")));
+      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 2000));
       app.get("/secret", (_: Request, res: Response) => res.send("Secret"));
       app.get("/another-secret", (_: Request, res: Response) => res.send("Secret"));
+
+      return {
+         message: "This could be an injected string. Pretty cool, ri8?",
+      };
+   }
+
+   @OnServerInit("WDYM")
+   async methodInject() {
+      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 4000));
+      return "This too";
    }
 
    @OnServerStartup
