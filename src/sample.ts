@@ -6,8 +6,8 @@ import {
    ErrorHandler,
    Factory,
    GET,
-   OnRequestEntry,
-   OnRequestExit,
+   UseBefore,
+   UseAfter,
    OnServerInit,
    OnServerStartup,
    Params,
@@ -74,7 +74,7 @@ class AnotherService {
 }
 
 @RestController("/")
-@OnRequestEntry(secondMidMan)
+@UseBefore(secondMidMan)
 class MoreEndpoints {
    private readonly _check: string = "hello world";
    @InjectGlobal("LOL") LOL: string | undefined;
@@ -133,20 +133,23 @@ class BodyDto {
    verbose: "minimal",
    controllers: [MoreEndpoints, TestDecorators],
 })
-@OnRequestEntry(midMan)
-@OnRequestExit(factory)
+@UseBefore(midMan)
+@UseAfter(factory)
 @RestController("/api")
 export class TestDecorators {
-   @OnRequestEntry(preHandler)
+   @InjectGlobal("WDYM") haha: any;
+
+   @UseBefore(preHandler)
    @GET("/home")
    method1(_: Request, __: Response) {
-      throw new Error("Error handler where you at");
+      console.log(this.haha);
+      // throw new Error("Error handler where you at");
       // return res.send("home page");
    }
 
    @GET("/about")
-   @OnRequestEntry(preHandler)
-   @OnRequestExit(postHandler)
+   @UseBefore(preHandler)
+   @UseAfter(postHandler)
    method2(@Context() ctx: any, @Query("aboutwhat") q: string) {
       console.log(q);
       return ["ada"];
@@ -156,7 +159,7 @@ export class TestDecorators {
    async method3(app: Application) {
       console.log("DB connection, perhaps...");
       app.use(express.json());
-      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 2000));
+      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 0));
       app.get("/secret", (_: Request, res: Response) => res.send("Secret"));
       app.get("/another-secret", (_: Request, res: Response) => res.send("Secret"));
 
@@ -167,7 +170,7 @@ export class TestDecorators {
 
    @OnServerInit("WDYM")
    async methodInject() {
-      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 4000));
+      await new Promise((resolve, _) => setTimeout(() => resolve("yes..."), 0));
       return "This too";
    }
 
@@ -176,14 +179,14 @@ export class TestDecorators {
       console.log("server started");
    }
 
-   @OnRequestEntry(preHandler)
+   @UseBefore(preHandler)
    @GET("/factory")
    @Factory
    method4() {
       return [factory];
    }
 
-   @OnRequestExit([postHandler])
+   @UseAfter([postHandler])
    @POST("/check")
    method5(_: Request, res: Response) {
       console.log("post method");

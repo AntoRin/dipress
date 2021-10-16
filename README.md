@@ -1,4 +1,4 @@
-# Welcome to dipress🎃
+# dipress
 
 [![Version](https://img.shields.io/npm/v/dipress.svg)](https://www.npmjs.com/package/dipress)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/AntoRin/dipress#readme)
@@ -19,7 +19,7 @@ npm install dipress
 
 > Create an express server using TypeScript decorators.
 
-Use the @ApplicationServer decorator for your main server class, and get your express server initialized behind the scenes. Following that, you can use an @RestController class decorator to initialize API routes (if it is the same class as your main application server, make sure @RestController comes second), and each method in that class can be an API endpoint, considering which of the available method decorators like @GET, @POST, @PUT, etc., you use.
+Use the @ApplicationServer decorator for your main server class, and have your express server initialized behind the scenes. Following that, you can use an @RestController class decorator to initialize API routes (if it is the same class as your main application server, make sure @RestController comes second), and each method in that class can be an API endpoint, considering which of the available method decorators like @GET, @POST, @PUT, etc., you use.
 
 ## Decorators
 
@@ -40,10 +40,18 @@ Initialize your controller, either with or without a route prefix.
 ---
 
 ```ts
-@UseMiddlewares(middlewares: Array<Function>)
+@UseBefore(middlewares: Array<RequestHandler> | RequestHandler)
 ```
 
-Initialize middlewares like "requireAuth" for your controller.
+The middleware functions provided will be used before request enters a controller, if the decorator is used controller-level, or before request enters a handler, if the decorator is used handler-level.
+
+---
+
+```ts
+@UseAfter(middlewares: Array<RequestHandler> | RequestHandler)
+```
+
+The middleware functions provided will be used after request enters a controller, if the decorator is used controller-level, or after request enters a handler, if the decorator is used handler-level.
 
 ---
 
@@ -52,18 +60,10 @@ Initialize middlewares like "requireAuth" for your controller.
 @POST(path: string)
 @PUT(path: string)
 @DELETE(path: string)
+@ALL(path: string)
 ```
 
-Rest methods for your endpoint controller methods.
-
----
-
-```ts
-@PreRouteHandlers(handlers: Array<Function>)
-@PostRouteHandlers(handlers: Array<Function>)
-```
-
-Handlers for before and after the request hits your endpoint.
+These decorators correspond to the respective Express router methods.
 
 ---
 

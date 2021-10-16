@@ -1,5 +1,5 @@
 export * from "./ControllerMethods";
-export * from "./OnRequestEntry";
-export * from "./OnRequestExit";
+export * from "./UseBefore";
+export * from "./UseAfter";
 export * from "./RestController";
 export * from "./InjectGlobal";
