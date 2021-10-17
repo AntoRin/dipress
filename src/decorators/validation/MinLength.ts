@@ -1,6 +1,10 @@
 import { DtoConstraints } from "../../interfaces/DtoConstraints";
 import { DtoKeyConstraints } from "../../interfaces/DtoKeyConstraints";
 
+/**
+ * @category DTO-validation
+ * @decorator MinLength
+ */
 export function MinLength(constraint: number) {
    return function (target: any, key: string) {
       const prevDtoConstraints: DtoConstraints | undefined = Reflect.getMetadata("dto:validation", target);

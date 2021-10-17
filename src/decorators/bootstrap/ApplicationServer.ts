@@ -12,17 +12,11 @@ import { isFunctionTypeOnly } from "../../utils/functionCheck";
 import { pathMap } from "../../utils/printRoutes";
 import { PromiseHandler } from "../../utils/PromiseHandler";
 
-/** Core Decorators for the Server
- *  @module ServerDecorators
- */
-
 /**
  * Decorator for initializing a server
- * @name ApplicationServer
- * @function
- * @memberof module:ServerDecorators
- * @param {ApplicationOptions} options - {   appHandler?: Application; port?: number; verbose?: "no" | "minimal" | "detailed"; controllers: Function[]; }
- * * Initialize application with controllers.
+ * @category Bootstrap
+ * @decorator ApplicationServer
+ * * Initialize the application server with controllers.
  * * A new instance of app is created by default, but a pre-configured instance of express application can be used.
  * * Using the verbose option logs controller and route details to the console.
  */

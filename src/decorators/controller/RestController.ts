@@ -1,6 +1,11 @@
 import { RequestHandler } from "express";
 import { ControllerMetadata } from "../../interfaces/ControllerMetadata";
 
+/**
+ * @category Controller
+ * @decorator RestController
+ * * Initializes a class as a controller.
+ */
 export function RestController(routePrefix: string = "") {
    return function (constructor: Function) {
       const target: any = constructor.prototype;

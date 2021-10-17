@@ -1,6 +1,10 @@
 import { DtoConstraints } from "../../interfaces/DtoConstraints";
 import { DtoKeyConstraints } from "../../interfaces/DtoKeyConstraints";
 
+/**
+ * @category DTO-validation
+ * @decorator Range
+ */
 export function Range(start: number, end: number) {
    return function (target: any, key: string) {
       const paramConstraints: DtoKeyConstraints = {

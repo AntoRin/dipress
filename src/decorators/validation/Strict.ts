@@ -1,6 +1,10 @@
 import { DtoConstraints } from "../../interfaces/DtoConstraints";
 import { DtoKeyConstraints } from "../../interfaces/DtoKeyConstraints";
 
+/**
+ * @category DTO-validation
+ * @decorator Strict
+ */
 export function Strict() {
    return function (target: any, key: string) {
       const paramConstraints: DtoKeyConstraints = {
