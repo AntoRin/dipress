@@ -31,5 +31,10 @@
          "*": ["node_modules/*"]
       }
    },
-   "exclude": ["node_modules", "lib"]
+   "exclude": ["node_modules", "lib"],
+   "typedocOptions": {
+      "entryPoints": ["src/index.ts"],
+      "readme": "none",
+      "categoryOrder": ["Bootstrap", "Common", "*"]
+   }
 }

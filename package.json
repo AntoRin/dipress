@@ -7,7 +7,7 @@
    "scripts": {
       "build": "rm -rf lib && tsc",
       "dev": "nodemon --exec ts-node src/sample.ts",
-      "genDoc": "rm -rf docs && typedoc src/index.ts",
+      "genDoc": "rm -rf docs && typedoc",
       "prepublishOnly": "npm run build"
    },
    "author": "AntoRin",
